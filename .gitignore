@@ -1,0 +1,11 @@
+/Release/
+/Debug/
+/ChartStudio/Release
+/ChartStudio/Debug
+/ChartStudio/x64
+/x64/
+/.vs/
+*.vcxproj
+*.filters
+*.user
+*.chartproject
