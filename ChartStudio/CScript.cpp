@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "Interpreter.h"
 
+
 CScript::CScript(string name, bool exportResult, string code) : CChartObject(name, ChartObjectType::Script, exportResult) {
 	this->setCode(code);
 	this->interpreter = new Interpreter();

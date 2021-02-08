@@ -120,7 +120,8 @@ bool Exporter::exportToJS(ChartProject* chartProject, string toFile) {
 	chartProject->makeObjectNamesUnique();
 	setUniqueIDs(chartProject);
 
-	writeStringToFile(saveFile, "function ChartProject(){\n");
+	writeStringToFile(saveFile, "import {Point,Line,LinearChart,ClampChart,TrendChart,PolyChart,ChartTableEntry,ChartTable,ChartInput,ChartScript,ChartConstant} from './ChartObjects';\n\n");
+	writeStringToFile(saveFile, "export default function ChartProject(){\n");
 	writeStringToFile(saveFile, "\tconst O=true;\n");
 	writeStringToFile(saveFile, "\tconst F=false;\n");
 	writeStringToFile(saveFile, "\tconst T=this;\n");
@@ -282,6 +283,9 @@ bool Exporter::exportToJS(ChartProject* chartProject, string toFile) {
 	writeStringToFile(saveFile, "];\n");
 
 	writeStringToFile(saveFile, "\tT.exports=[");
+	for (auto & input : chartProject->inputs) {
+		writeStringToFile(saveFile, getJSName(input, true) + ",");
+	}
 	for (auto & object : chartProject->objects) {
 		if (object->exportResult) writeStringToFile(saveFile, getJSName(object, true) + ",");
 	}
@@ -290,7 +294,6 @@ bool Exporter::exportToJS(ChartProject* chartProject, string toFile) {
 	writeStringToFile(saveFile, "\tT.calc=()=>{for (let obj of T.calcArray) {obj.calc(T.calcArray);}};\n}");
 	fclose(saveFile);
 	return true;
-
 }
 
 Exporter::~Exporter() {
