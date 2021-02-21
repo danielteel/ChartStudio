@@ -27,6 +27,8 @@
 #include "ChartImage.h"
 #include "helpers.h"
 
+#include "Tokenizer.h"
+
 HINSTANCE hInst;
 char szTitle[] = "Chart Studio";
 char szWindowClass[] = "ChartStudioClass";
@@ -57,6 +59,13 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow){
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
+
+	Tokenizer tokenizer;
+	try {
+		tokenizer.tokenize("double a=0.5;\n string b='dude");
+	} catch (int e) {
+		MessageBox(NULL, tokenizer.errorMsg.c_str(), tokenizer.errorMsg.c_str(), 0);
+	}
 
 	hInst = hInstance; // Store instance handle in our global variable
 
