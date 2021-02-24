@@ -12,6 +12,7 @@ Tokenizer::~Tokenizer() {
 
 
 void Tokenizer::tokenize(string code) {
+	this->errorMsg = "";
 	this->tokens.clear();
 
 	this->code = code;
@@ -30,7 +31,7 @@ void Tokenizer::tokenize(string code) {
 
 void Tokenizer::throwError(string message) {
 	this->errorMsg = "Tokenizer error on line "+ to_string(this->currentCodeLine) + ": " + message;
-	throw 1;
+	throw 'T';
 }
 
 void Tokenizer::addToken(InterpreterTokenType type, string value) {

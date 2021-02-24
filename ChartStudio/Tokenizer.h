@@ -70,7 +70,7 @@ public:
 	InterpreterTokenType type;
 	string sValue;
 	double dValue;
-	int line;
+	size_t line;
 
 	TokenObj(InterpreterTokenType type, string value, int line) {
 		this->type = type;
@@ -86,6 +86,17 @@ public:
 	TokenObj(InterpreterTokenType type, int line) {
 		this->type = type;
 		this->line = line;
+	}
+
+	TokenObj(const TokenObj& a) {
+		this->type = a.type;
+		this->sValue = a.sValue;
+		this->dValue = a.dValue;
+		this->line = a.line;
+	}
+
+	TokenObj() {
+
 	}
 };
 
