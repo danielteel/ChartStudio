@@ -321,14 +321,30 @@ public:
 		a.size = size;
 		return a;
 	}
-		SubStr
-		Clamp
+	static OpCode subStr(UnlinkedObj obj0, UnlinkedObj obj1, UnlinkedObj obj2) {
+		OpCode a(OpCodeType::substr);
+		a.obj0 = obj0;
+		a.obj1 = obj1;
+		a.obj2 = obj2;
+		return a;
+	}
+	static OpCode clamp(UnlinkedObj obj0, UnlinkedObj obj1, UnlinkedObj obj2) {
+		OpCode a(OpCodeType::clamp);
+		a.obj0 = obj0;
+		a.obj1 = obj1;
+		a.obj2 = obj2;
+		return a;
+	}
 };
 
 class Program {
 public:
 	Program();
 	~Program();
+
+	OpCode addCode(OpCode op);
+	OpCode insertCode(OpCode op, size_t afterThis);
+	OpCode insertCode(vector<OpCode> opCodes, size_t afterThis);
 
 	string errorMsg;
 	CodeState codeState;
