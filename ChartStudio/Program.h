@@ -342,9 +342,11 @@ public:
 	Program();
 	~Program();
 
-	OpCode addCode(OpCode op);
-	OpCode insertCode(OpCode op, size_t afterThis);
-	OpCode insertCode(vector<OpCode> opCodes, size_t afterThis);
+	void reset();
+
+	size_t addCode(OpCode op);
+	void insertCode(OpCode op, size_t afterThis);
+	void insertCode(vector<OpCode> opCodes, size_t afterThis);
 
 	string errorMsg;
 	CodeState codeState;

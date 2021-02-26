@@ -3,8 +3,12 @@
 #include <string>
 #include "Tokenizer.h"
 #include "OpObj.h"
+#include "Program.h"
 
 using namespace std;
+
+
+
 
 enum class IdentityType {
 	Null,
@@ -53,7 +57,7 @@ class ScopeObj {
 		size_t scope;
 		size_t index;
 
-		ScopeObj(string name, IdentityType type, size_t branch, vector<IdentityType>& params, IdentityType returnType, size_t scope, size_t index) {
+		ScopeObj(string name, IdentityType type, size_t branch, const vector<IdentityType>& params, IdentityType returnType, size_t scope, size_t index) {
 			this->name = name;
 			this->type = type;
 			this->branch = branch;
@@ -87,6 +91,7 @@ class ScopeObj {
 class Parser {
 public:
 	Parser(vector<TokenObj>& tokens);
+	~Parser();
 	size_t newBranch();
 	void throwError(string message);
 	void typeMismatch(IdentityType expectedType, IdentityType foundType);
@@ -97,7 +102,34 @@ public:
 	void getToken();
 	void firstToken();
 	void parse(vector<ExternalDef> externals);
-	~Parser();
+	void pushAllocScope();
+	void popAllocScope();
+
+	void pushScope();
+
+	void popScope();
+
+	ScopeObj addToCurrentScope(string name, IdentityType type, size_t branch, const vector<IdentityType>, IdentityType returnType);
+
+	ScopeObj * getIdentity(string name, bool onlyInCurrentScope);
+
+	ScopeObj addVar(string name, IdentityType type);
+
+	ScopeObj addFunction(string name, IdentityType returnType, size_t branch, vector<IdentityType> params);
+
+	bool isPowerOp();
+
+	bool isTermOp();
+
+	bool isAddOp();
+
+	bool isCompareOp();
+
+	bool isOrOp();
+
+	bool isAndOp();
+
+	bool isTernaryOp();
 
 	string errorMsg;
 
@@ -113,4 +145,6 @@ public:
 
 	vector<size_t> allocScope;
 	vector<vector<ScopeObj>> scopes;
+
+	Program program;
 };

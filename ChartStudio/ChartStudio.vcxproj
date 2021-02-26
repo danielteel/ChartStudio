@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{6FCAF27D-D84D-4AA0-B686-A5F24478A425}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>ChartStudio</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="ButtonBar.h" />
+    <ClInclude Include="Canvas.h" />
+    <ClInclude Include="CChartBase.h" />
+    <ClInclude Include="CChartObject.h" />
+    <ClInclude Include="CClampChart.h" />
+    <ClInclude Include="CConstant.h" />
+    <ClInclude Include="ChartImage.h" />
+    <ClInclude Include="ChartProject.h" />
+    <ClInclude Include="ChartStudio.h" />
+    <ClInclude Include="CInput.h" />
+    <ClInclude Include="dialogs.h" />
+    <ClInclude Include="CLinearChart.h" />
+    <ClInclude Include="CPolyChart.h" />
+    <ClInclude Include="CScript.h" />
+    <ClInclude Include="CTable.h" />
+    <ClInclude Include="CTrendChart.h" />
+    <ClInclude Include="DoubleBuff.h" />
+    <ClInclude Include="Exporter.h" />
+    <ClInclude Include="FileParser.h" />
+    <ClInclude Include="helpers.h" />
+    <ClInclude Include="Interpret.h" />
+    <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="ListUI.h" />
+    <ClInclude Include="OpObj.h" />
+    <ClInclude Include="Parser.h" />
+    <ClInclude Include="Program.h" />
+    <ClInclude Include="ProjectContainer.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="SyntaxColoredEditor.h" />
+    <ClInclude Include="TabControl.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="TLine.h" />
+    <ClInclude Include="Tokenizer.h" />
+    <ClInclude Include="Toolbar.h" />
+    <ClInclude Include="TPoint.h" />
+    <ClInclude Include="TRect.h" />
+    <ClInclude Include="TSegment.h" />
+    <ClInclude Include="UIData.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ButtonBar.cpp" />
+    <ClCompile Include="Canvas.cpp" />
+    <ClCompile Include="CChartBase.cpp" />
+    <ClCompile Include="CChartObject.cpp" />
+    <ClCompile Include="CClampChart.cpp" />
+    <ClCompile Include="CConstant.cpp" />
+    <ClCompile Include="ChartImage.cpp" />
+    <ClCompile Include="ChartProject.cpp" />
+    <ClCompile Include="ChartStudio.cpp" />
+    <ClCompile Include="CInput.cpp" />
+    <ClCompile Include="dialogs.cpp" />
+    <ClCompile Include="CLinearChart.cpp" />
+    <ClCompile Include="CPolyChart.cpp" />
+    <ClCompile Include="CScript.cpp" />
+    <ClCompile Include="CTable.cpp" />
+    <ClCompile Include="CTrendChart.cpp" />
+    <ClCompile Include="DoubleBuff.cpp" />
+    <ClCompile Include="Exporter.cpp" />
+    <ClCompile Include="FileParser.cpp" />
+    <ClCompile Include="helpers.cpp" />
+    <ClCompile Include="Interpret.cpp" />
+    <ClCompile Include="Interpreter.cpp" />
+    <ClCompile Include="ListUI.cpp" />
+    <ClCompile Include="OpObj.cpp" />
+    <ClCompile Include="Parser.cpp" />
+    <ClCompile Include="Program.cpp" />
+    <ClCompile Include="ProjectContainer.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SyntaxColoredEditor.cpp" />
+    <ClCompile Include="TabControl.cpp" />
+    <ClCompile Include="TLine.cpp" />
+    <ClCompile Include="Tokenizer.cpp" />
+    <ClCompile Include="Toolbar.cpp" />
+    <ClCompile Include="TPoint.cpp" />
+    <ClCompile Include="TRect.cpp" />
+    <ClCompile Include="TSegment.cpp" />
+    <ClCompile Include="UIData.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ChartStudio.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="bitmap1.bmp" />
+    <Image Include="ChartStudio.ico" />
+    <Image Include="Images\add.bmp" />
+    <Image Include="Images\addLine.bmp" />
+    <Image Include="Images\addPoints.bmp" />
+    <Image Include="Images\all.bmp" />
+    <Image Include="images\bitmap1.bmp" />
+    <Image Include="Images\cancel.bmp" />
+    <Image Include="Images\clamp.bmp" />
+    <Image Include="Images\clamp1.bmp" />
+    <Image Include="Images\delete.bmp" />
+    <Image Include="Images\down.bmp" />
+    <Image Include="Images\export.bmp" />
+    <Image Include="Images\hide.bmp" />
+    <Image Include="Images\linear.BMP" />
+    <Image Include="Images\linear1.bmp" />
+    <Image Include="Images\poly.bmp" />
+    <Image Include="Images\poly1.bmp" />
+    <Image Include="Images\removePoints.bmp" />
+    <Image Include="Images\rotate.bmp" />
+    <Image Include="Images\script.bmp" />
+    <Image Include="Images\scriptadd.bmp" />
+    <Image Include="Images\show.bmp" />
+    <Image Include="Images\table.bmp" />
+    <Image Include="Images\tableadd.bmp" />
+    <Image Include="images\toolbar.bmp" />
+    <Image Include="Images\trend.bmp" />
+    <Image Include="Images\trend1.bmp" />
+    <Image Include="Images\up.bmp" />
+    <Image Include="small.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

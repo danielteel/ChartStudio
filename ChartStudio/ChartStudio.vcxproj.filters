@@ -1,0 +1,364 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\ChartProject Classes">
+      <UniqueIdentifier>{1c839243-0d56-40db-8302-b5fe1cf898b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ChartProject Classes">
+      <UniqueIdentifier>{3fd3154b-b9b7-46e3-a4a1-ec1287ae50bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{ebc52199-6717-427d-a168-f34130ff4bcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{e3c118e3-e51c-402a-9750-8003e94c8970}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ChartProject Classes\Interpreter">
+      <UniqueIdentifier>{09980cd4-fd14-45b8-bbab-37639b155a11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ChartProject Classes\Interpreter">
+      <UniqueIdentifier>{ca845295-7402-4f7c-9349-86308bc2c056}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartStudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ButtonBar.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="DoubleBuff.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ListUI.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Toolbar.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TabControl.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SyntaxColoredEditor.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartImage.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ChartProject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CChartBase.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CChartObject.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CClampChart.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CConstant.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CInput.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CLinearChart.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CPolyChart.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CScript.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CTable.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="CTrendChart.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="FileParser.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpreter.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TLine.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TPoint.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TSegment.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="TRect.h">
+      <Filter>Header Files\ChartProject Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Canvas.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UIData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dialogs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Exporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tokenizer.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpret.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="OpObj.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartStudio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="helpers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ButtonBar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="DoubleBuff.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ListUI.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="SyntaxColoredEditor.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="TabControl.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Toolbar.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartImage.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ChartProject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CChartBase.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CChartObject.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CClampChart.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CConstant.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CInput.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CLinearChart.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CPolyChart.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CTable.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CScript.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="CTrendChart.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="FileParser.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TLine.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TPoint.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TRect.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="TSegment.cpp">
+      <Filter>Source Files\ChartProject Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectContainer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Canvas.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UIData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dialogs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Exporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tokenizer.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpret.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="OpObj.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ChartStudio.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="small.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="ChartStudio.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\add.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\addLine.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\addPoints.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\all.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\cancel.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\clamp.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\clamp1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\delete.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\down.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\export.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\hide.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\linear.BMP">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\linear1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\poly.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\poly1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\removePoints.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\rotate.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\script.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\scriptadd.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\show.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\table.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\tableadd.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\trend.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\trend1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\up.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>

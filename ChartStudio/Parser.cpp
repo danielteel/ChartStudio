@@ -217,7 +217,7 @@ void Parser::getToken() {
 		this->token = &this->tokens[this->tokenIndex];
 
 		while (this->token && this->token->type == InterpreterTokenType::NewLine) {
-			//this->program.addCodeLine(this->token->sValue);
+			this->program.addCode(OpCode::codeLine(this->token->sValue));
 			this->tokenIndex++;
 			this->token = &this->tokens[this->tokenIndex];
 		}
@@ -247,7 +247,7 @@ void Parser::parse(vector<ExternalDef> externals) {
 	this->allocScope.push_back(0);
 	this->maxScopeDepth = 0;
 
-	//this->program = new Program();
+	this->program.reset();
 
 	for (size_t i = 0; i < externals.size(); i++) {
 		this->addToCurrentScope(externals[i].name, externals[i].type, i, externals[i].params, externals[i].returnType);
@@ -256,142 +256,128 @@ void Parser::parse(vector<ExternalDef> externals) {
 	this->pushAllocScope();
 
 	const size_t entryPoint = this->newBranch();
-	//const size_t entryPointAddress = this->program->addLabel(entryPoint);
-	//this->program->addCodeLine(nullptr);
+	const size_t entryPointAddress = this->program.addCode(OpCode::label(entryPoint));
+	this->program.addCode(OpCode::codeLine(""));
 
 	this->doBlock(NULL, NULL, false, false, true);
-	//this->program->addCodeLine(nullptr);
-	//this->program->addExit( Program::unlinkedNull() );
+	this->program.addCode(OpCode::codeLine(""));
+	this->program.addCode( OpCode::exit(UnlinkedObj()) );
 
-	vector<OpCode> mainPreamble;
-
-	//mainPreamble.push_back(this->program->addScopeDepth(this->maxScopeDepth, true));
+	vector<OpCode> mainPreamble = {OpCode::scopeDepth(this->maxScopeDepth)};
 	if (this->allocScope[this->allocScopeIndex]) {
-		mainPreamble.push_back(this->program->addPushScope(this->allocScopeIndex, this->allocScope[this->allocScopeIndex], true));
+		mainPreamble.push_back(OpCode::pushScope(this->allocScopeIndex, this->allocScope[this->allocScopeIndex]));
 	}
-	this->program->code->splice(entryPointAddress+1)
+	this->program.insertCode(mainPreamble, entryPointAddress + 1);
+
+	this->popAllocScope();
+}
+
+void Parser::pushAllocScope() {
+	this->allocScope.push_back(0);
+	this->maxScopeDepth = max(this->maxScopeDepth, this->allocScopeIndex);
+}
+
+void Parser::popAllocScope() {
+	this->allocScope.pop_back();
+}
+
+void Parser::pushScope() {
+	this->scopes.push_back({});
+}
+
+void Parser::popScope() {
+	this->scopes.pop_back();
 }
 
 
+ScopeObj Parser::addToCurrentScope(string name, IdentityType type, size_t branch = 0, const vector<IdentityType> params = {}, IdentityType returnType = IdentityType::Null) {
+	bool alreadyExists = this->getIdentity(name, true) != nullptr;
+	if (alreadyExists) this->throwError("duplicate name definition, " + name + " already exists in current scope");
 
-// 		this.program.addExit( Program.unlinkedNull() );
+	ScopeObj obj = ScopeObj(name, type, branch, params, returnType, this->allocScopeIndex, this->allocScope[this->allocScopeIndex]);
 
-// 		let mainPreamble=[];
-// 		mainPreamble.push(this.program.addScopeDepth(this.maxScopeDepth, true));
-// 		if (this.allocScope[this.allocScopeIndex]){
-// 			mainPreamble.push(this.program.addPushScope(this.allocScopeIndex, this.allocScope[this.allocScopeIndex], true));
-// 		}
-// 		this.program.code.splice(mainPreamble+1, 0, ...mainPreamble);
+	this->scopes[this->scopeIndex].push_back(obj);
 
-// 		this.popAllocScope();
-// 		return this.program;
-// 	}
+	switch (type) {
+		case IdentityType::Bool:
+		case IdentityType::Double:
+		case IdentityType::String:
+			this->allocScope[this->allocScopeIndex]++;
+			break;
+	}
 
-// 	pushAllocScope(){
-// 		this.allocScope[++this.allocScopeIndex]=0;
-// 		this.maxScopeDepth=Math.max(this.maxScopeDepth, this.allocScopeIndex);
-// 	}
-// 	popAllocScope(){
-// 		this.allocScope[this.allocScopeIndex--]=undefined;
-// 	}
-
-// 	pushScope(){
-// 		this.scopes[++this.scopeIndex]=[];
-// 	}
-// 	popScope(){
-// 		this.scopes[this.scopeIndex--]=undefined;
-// 	}
-// 	addToCurrentScope(name, type, branch=null, params=null, returnType=null){
-// 		const alreadyExists=this.getIdentity(name, true);
-// 		if (alreadyExists !== null) this.throwError("Duplicate define, "+name+" already exists in current scope as "+alreadyExists.name+":"+alreadyExists.type.toString());
-// 		let obj={name: name, type: type, branch: branch, params: params, returnType: returnType, scope: this.allocScopeIndex, index: this.allocScope[this.allocScopeIndex]};
-// 		this.scopes[this.scopeIndex].push(obj);
-// 		switch (type){
-// 			case IdentityType.Bool:
-// 			case IdentityType.Double:
-// 			case IdentityType.String:
-// 				this.allocScope[this.allocScopeIndex]++;
-// 				break;
-// 		}
-// 		return obj;
-// 	}
-
-// 	getFromStringPool(string){
-// 		let stringIndex=this.stringPool.indexOf(string);
-// 		if (stringIndex<0){
-// 			this.stringPool.push(string);
-// 			stringIndex=this.stringPool.length-1;
-// 		}
-// 		return stringIndex;
-// 	}
+	return obj;
+}
 
 
+ScopeObj* Parser::getIdentity(string name, bool onlyInCurrentScope) {
+	for (size_t i = this->scopeIndex;i>=0;i--){
+		for (size_t j = 0; j < this->scopes[i].size(); j++) {
+			if (this->scopes[i][j].name == name) return &this->scopes[i][j];
+		}
+		if (onlyInCurrentScope) break;
+	}
+	return nullptr;
+}
 
-// 	getIdentity(name, onlyInCurrentScope=false){
-// 		for (let i = this.scopeIndex;i>=0;i--){
-// 			let identity = this.scopes[i].find( current => name === current.name );
-// 			if (identity) return identity;
-// 			if (onlyInCurrentScope) break;
-// 		}
-// 		return null;
-// 	}
+ScopeObj Parser::addVar(string name, IdentityType type) {
+	return this->addToCurrentScope(name, type);
+}
 
-// 	addVar(name, type){
-// 		return this.addToCurrentScope(name, type);
-// 	}
-
-// 	addFunction(name, returnType, branch, params){
-// 		return this.addToCurrentScope(name, IdentityType.Function, branch, params, returnType);
-// 	}
+ScopeObj Parser::addFunction(string name, IdentityType returnType, size_t branch, vector<IdentityType> params) {
+	return this->addToCurrentScope(name, IdentityType::Function, branch, params, returnType);
+}
 
 
-// 	isPowerOp(){
-// 		if (this.token.type===TokenType.Exponent) return true;
-// 		return false;
-// 	}
+bool Parser::isPowerOp() {
+	return this->token->type == InterpreterTokenType::Exponent;
+}
 
-// 	isTermOp(){
-// 		switch (this.token.type){
-// 		case TokenType.Multiply:
-// 		case TokenType.Divide:
-// 		case TokenType.Mod:
-// 			return true;
-// 		}
-// 		return false;
-// 	}
+bool Parser::isTermOp() {
+	switch (this->token->type) {
+		case InterpreterTokenType::Multiply:
+		case InterpreterTokenType::Divide:
+		case InterpreterTokenType::Mod:
+			return true;
+	}
+	return false;
+}
 
-// 	isAddOp(){
-// 		if (this.token.type===TokenType.Plus || this.token.type===TokenType.Minus) return true;
-// 		return false;
-// 	}
+bool Parser::isAddOp() {
+	switch (this->token->type) {
+	case InterpreterTokenType::Plus:
+	case InterpreterTokenType::Minus:
+		return true;
+	}
+	return false;
+}
 
-// 	isCompareOp(){
-// 		switch (this.token.type){
-// 			case TokenType.Lesser:
-// 			case TokenType.LesserEquals:
-// 			case TokenType.Greater:
-// 			case TokenType.GreaterEquals:
-// 			case TokenType.Equals:
-// 			case TokenType.NotEquals:
-// 				return true;
-// 		}
-// 		return false;
-// 	}
+bool Parser::isCompareOp() {
+	switch (this->token->type) {
+	case InterpreterTokenType::Lesser:
+	case InterpreterTokenType::LesserEquals:
+	case InterpreterTokenType::Greater:
+	case InterpreterTokenType::GreaterEquals:
+	case InterpreterTokenType::Equals:
+	case InterpreterTokenType::NotEquals:
+		return true;
+	}
+	return false;
+}
 
-// 	isAndOp(){
-// 		if (this.token.type===TokenType.And) return true;
-// 		return false;
-// 	}
+bool Parser::isOrOp() {
+	return this->token->type == InterpreterTokenType::And;
+}
 
-// 	isOrOp(){
-// 		if (this.token.type===TokenType.Or) return true;
-// 		return false;
-// 	}
+bool Parser::isAndOp() {
+	return this->token->type == InterpreterTokenType::Or;
+}
 
-// 	isTernaryOp(){
-// 		if (this.token.type===TokenType.Question) return true;
-// 		return false;
-// 	}
+bool Parser::isTernaryOp() {
+	return this->token->type == InterpreterTokenType::Question;
+}
+
+
 
 // 	doFuncCall(funcName=null){
 // 		let needsIdentMatched=false;
