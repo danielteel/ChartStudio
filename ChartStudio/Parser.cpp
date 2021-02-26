@@ -195,6 +195,10 @@ bool Parser::typesDontMatch(IdentityType a, IdentityType b, bool strict = false)
 	return !(a==b || (a==IdentityType::Null || b==IdentityType::Null && strict==false));
 }
 
+void Parser::assertType(IdentityType whatItIs, IdentityType whatItShouldBe, bool strict = false) {
+	if (this->typesDontMatch(whatItIs, whatItShouldBe, strict)) this->typeMismatch(whatItIs, whatItShouldBe);
+}
+
 void Parser::match(InterpreterTokenType type) {
 	if (this->token && this->token->type == type) {
 		this->getToken();
@@ -377,62 +381,63 @@ bool Parser::isTernaryOp() {
 	return this->token->type == InterpreterTokenType::Question;
 }
 
+IdentityType Parser::doFuncCall(string funcName = "") {
+	bool needsIdentMatched = false;
+	if (funcName.empty()) {
+		funcName = this->token->sValue;
+		needsIdentMatched = true;
+	}
+
+	ScopeObj* identObj = this->getIdentity(funcName);
+	if (!identObj) this->throwError("tried to call undefined function " + funcName);
+	if (identObj->type != IdentityType::Function) this->throwError("tried to call undefined function '" + funcName + "'");
 
 
-// 	doFuncCall(funcName=null){
-// 		let needsIdentMatched=false;
-// 		if (funcName===null){
-// 			funcName=this.token?.value;
-// 			needsIdentMatched=true;
-// 		}
-// 		let identObj = this.getIdentity(funcName);
-// 		if (identObj.type!==IdentityType.Function) this.throwError("tried to call a function named '"+funcName+"' that doesnt exist");
-// 		if (!identObj) this.throwError("tried to call undefined function'"+funcName+"'");
+	if (needsIdentMatched) this->match(InterpreterTokenType::Ident);
+	this->match(InterpreterTokenType::LeftParen);
 
-// 		if (needsIdentMatched) this.match(TokenType.Ident);
+	for (size_t i = 0; i < identObj->params.size(); i++) {
+		IdentityType type = this->doExpression();
+		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
 
-// 		this.match(TokenType.LeftParen);
+		this->assertType(type, identObj->params[i]);
 
-// 		for (let i=0;i<identObj.params.length;i++){
-// 			let type=this.doExpression();
-// 			this.program.addPush( Program.unlinkedReg("eax") );
+		if (i < identObj->params.size() - 1) {
+			this->match(InterpreterTokenType::Comma);
+		}
+	}
 
-// 			if (this.typesDontMatch(type, identObj.params[i])) this.typeMismatch(identObj.params[i], type);
+	this->match(InterpreterTokenType::RightParen);
 
-// 			if (i<identObj.params.length-1){
-// 				this.match(TokenType.Comma);
-// 			}
-// 		}
+	if (identObj->scope == 0) {
+		this->program.addCode(OpCode::exCall(identObj->branch));
+	} else {
+		this->program.addCode(OpCode::call(identObj->branch));
+	}
 
-// 		this.match(TokenType.RightParen);
+	return identObj->returnType;
+}
 
-// 		if (identObj.scope===0){
-// 			this.program.addExCall(identObj.branch, "fxn "+identObj.name);
-// 		}else{
-// 			this.program.addCall(identObj.branch, "fxn "+identObj.name);
-// 		}
+IdentityType Parser::doIdent() {
+	string varName = this->token->sValue;
+	ScopeObj* identObj = this->getIdentity(varName);
+	this->match(InterpreterTokenType::Ident);
+	if (!identObj) this->throwError("tried to access undefined '" + varName + "'");
+	
+	switch (identObj->type) {
+	case IdentityType::Function:
+		return this->doFuncCall();
 
-// 		return identObj.returnType;
-// 	}
+	case IdentityType::String:
+	case IdentityType::Double:
+	case IdentityType::Bool:
+		this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(identObj->type, identObj->scope, identObj->index)));
+		return identObj->type;
+	}
 
-// 	doIdent(){
-// 		const varName=this.token.value;
-// 		const identObj = this.getIdentity(varName);
-// 		this.match(TokenType.Ident);
-// 		if (!identObj) this.throwError("tried to access undefined '"+varName+"'");
+	this->throwError("unknown ident type for '" + varName+"'");
+}
 
-// 		switch (identObj.type){
-// 			case IdentityType.Function:
-// 				return this.doFuncCall(varName);
-
-// 			case IdentityType.String:
-// 			case IdentityType.Bool:
-// 			case IdentityType.Double:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedVariable(identObj.type, identObj.scope, identObj.index, varName) );
-// 				return identObj.type;
-// 		}
-// 		this.throwError("unknown ident type "+varName+":"+identObj.type.toString());
-// 	}
 
 // 	doFactor(){
 // 		let type=null;

@@ -97,6 +97,7 @@ public:
 	void typeMismatch(IdentityType expectedType, IdentityType foundType);
 	void matchType(IdentityType whatToTest, IdentityType typeItShouldBe, bool strict);
 	bool typesDontMatch(IdentityType a, IdentityType b, bool strict);
+	void assertType(IdentityType a, IdentityType b, bool strict);
 	void match(InterpreterTokenType type);
 	bool isNotEnd();
 	void getToken();
@@ -130,6 +131,8 @@ public:
 	bool isAndOp();
 
 	bool isTernaryOp();
+
+	IdentityType doFuncCall(string funcName);
 
 	string errorMsg;
 
