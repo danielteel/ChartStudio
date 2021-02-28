@@ -314,7 +314,7 @@ ScopeObj Parser::addToCurrentScope(string name, IdentityType type, size_t branch
 }
 
 
-ScopeObj* Parser::getIdentity(string name, bool onlyInCurrentScope) {
+ScopeObj* Parser::getIdentity(string name, bool onlyInCurrentScope=false) {
 	for (size_t i = this->scopeIndex;i>=0;i--){
 		for (size_t j = 0; j < this->scopes[i].size(); j++) {
 			if (this->scopes[i][j].name == name) return &this->scopes[i][j];
@@ -438,339 +438,316 @@ IdentityType Parser::doIdent() {
 	this->throwError("unknown ident type for '" + varName+"'");
 }
 
+IdentityType Parser::doFactor() {
+	IdentityType type = IdentityType::Null;
+	switch (this->token->type) {
+		case InterpreterTokenType::Ident:
+			return this->doIdent();
 
-// 	doFactor(){
-// 		let type=null;
-// 		switch (this.token?.type){
-// 			case TokenType.Ident:
-// 				return this.doIdent();
+		case InterpreterTokenType::Minus:
+			this->match(InterpreterTokenType::Minus);
+			type = this->doFactor();
+			this->assertType(type, IdentityType::Double);
+			this->program.addCode(OpCode::neg( UnlinkedObj(RegisterId::eax) ));
+			return IdentityType::Double;
 
-// 			case TokenType.Minus:
-// 				this.match(TokenType.Minus);
-// 				type=this.doFactor();
-// 				if (this.typesDontMatch(IdentityType.Double, type)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addNeg( Program.unlinkedReg("eax") );
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Not:
+			this->match(InterpreterTokenType::Not);
+			type = this->doFactor();
+			this->assertType(type, IdentityType::Bool);
+			this->program.addCode(OpCode::notOp( UnlinkedObj(RegisterId::eax) ));
+			return IdentityType::Bool;
 
-// 			case TokenType.Not:
-// 				this.match(TokenType.Not);
-// 				type=this.doFactor();
-// 				if (this.typesDontMatch(IdentityType.Bool, type)) this.typeMismatch(IdentityType.Bool, type);
-// 				this.program.addNot( Program.unlinkedReg("eax") );
-// 				return IdentityType.Bool;
+		case InterpreterTokenType::Question:
+			this->match(InterpreterTokenType::Question);
+			type = this->doFactor();
+			this->program.addCode(OpCode::cmp( UnlinkedObj(RegisterId::eax), UnlinkedObj() ));
+			this->program.addCode(OpCode::sne( UnlinkedObj(RegisterId::eax) ));
+			return IdentityType::Bool;
 
-// 			case TokenType.Question:
-// 				this.match(TokenType.Question);
-// 				type=this.doFactor();
-// 				this.program.addCmp( Program.unlinkedReg("eax"), Program.unlinkedNull() );
-// 				this.program.addSNE( Program.unlinkedReg("eax") );
-// 				return IdentityType.Bool;
+		case InterpreterTokenType::LeftParen:
+			this->match(InterpreterTokenType::LeftParen);
+			type = this->doExpression();
+			this->match(InterpreterTokenType::RightParen);
+			return type;
 
-// 			case TokenType.LeftParen:
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				this.match(TokenType.RightParen);
-// 				return type;
+		case InterpreterTokenType::Null:
+			this->match(InterpreterTokenType::Null);
+			this->program.addCode(OpCode::mov( UnlinkedObj(RegisterId::eax), UnlinkedObj() ));
+			return IdentityType::Null;
 
-// 			case TokenType.Null:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedNull() );
-// 				this.match(TokenType.Null);
-// 				return IdentityType.Null;
+		case InterpreterTokenType::True:
+			this->match(InterpreterTokenType::True);
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(true)));
+			return IdentityType::Bool;
 
-// 			case TokenType.True:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Bool, true) );
-// 				this.match(TokenType.True);
-// 				return IdentityType.Bool;
+		case InterpreterTokenType::False:
+			this->match(InterpreterTokenType::False);
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(false)));
+			return IdentityType::Bool;
 
-// 			case TokenType.False:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Bool, false) );
-// 				this.match(TokenType.False);
-// 				return IdentityType.Bool;
+		case InterpreterTokenType::DoubleLiteral:
+			this->program.addCode(OpCode::mov( UnlinkedObj(RegisterId::eax), UnlinkedObj(this->token->dValue) ));
+			this->match(InterpreterTokenType::DoubleLiteral);
+			return IdentityType::Double;
 
-// 			case TokenType.DoubleLiteral:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Double, this.token.value) );
-// 				this.match(TokenType.DoubleLiteral);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::StringLiteral:
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(this->token->sValue)));
+			this->match(InterpreterTokenType::StringLiteral);
+			return IdentityType::String;
 
-// 			case TokenType.StringLiteral:
-// 				this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.String, this.token.value) );
-// 				this.match(TokenType.StringLiteral);
-// 				return IdentityType.String;
+		case InterpreterTokenType::Bool:
+			this->match(InterpreterTokenType::Bool);
+			this->match(InterpreterTokenType::LeftParen);
+			type = this->doExpression();
+			if (this->typesDontMatch(IdentityType::Bool, type)) {
+				this->program.addCode( OpCode::toBool(UnlinkedObj(RegisterId::eax)) );
+			}
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Bool;
 
-// 			case TokenType.Bool:
-// 				this.match(TokenType.Bool);
-// 				this.match(TokenType.LeftParen);
-// 				type = this.doExpression();
-// 				if (this.typesDontMatch(IdentityType.Bool, type)){
-// 					this.program.addToBool( Program.unlinkedReg("eax") );
-// 				}
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Bool;
+		case InterpreterTokenType::Double:
+			this->match(InterpreterTokenType::Double);
+			this->match(InterpreterTokenType::LeftParen);
+			type = this->doExpression();
+			if (this->typesDontMatch(IdentityType::Double, type)) {
+				this->program.addCode(OpCode::toDouble(UnlinkedObj(RegisterId::eax)));
+			}
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Double:
-// 				this.match(TokenType.Double);
-// 				this.match(TokenType.LeftParen);
-// 				type = this.doExpression();
-// 				if (this.typesDontMatch(IdentityType.Double, type)){
-// 					this.program.addToDouble( Program.unlinkedReg("eax") );
-// 				}
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::String:
+			this->match(InterpreterTokenType::String);
+			this->match(InterpreterTokenType::LeftParen);
+			type = this->doExpression();
+			if (this->token->type == InterpreterTokenType::Comma) {
+				if (!this->typesDontMatch(type, IdentityType::String)) this->throwError("cannot do string:decimals conversion on a string");
+				this->match(InterpreterTokenType::Comma);
+				this->program.addCode(OpCode::push( UnlinkedObj(RegisterId::eax) ));
+				this->assertType(this->doExpression(), IdentityType::Double);
+				this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+				this->program.addCode(OpCode::toString(UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax)));
+				this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			} else {
+				if (this->typesDontMatch(type, IdentityType::String)) {
+					this->program.addCode(OpCode::toString(UnlinkedObj(RegisterId::eax), UnlinkedObj()));
+				}
+			}
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::String;
 
-// 			case TokenType.String:
-// 				this.match(TokenType.String);
-// 				this.match(TokenType.LeftParen);
-// 				type = this.doExpression();
-// 				if (this.token?.type===TokenType.Comma){
-// 					this.match(TokenType.Comma);
-// 					this.program.addPush( Program.unlinkedReg("eax") );
-// 					type=this.doExpression();
-// 					if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 					this.program.addPop( Program.unlinkedReg("ebx") );
-// 					this.program.addToString( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
-// 					this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 				} else {
-// 					this.program.addToString( Program.unlinkedReg("eax"), Program.unlinkedNull() );
-// 				}
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.String;
+		case InterpreterTokenType::Ceil:
+			this->match(InterpreterTokenType::Ceil);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::ceil(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Ceil:
-// 				this.match(TokenType.Ceil);
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addCeil( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Floor:
+			this->match(InterpreterTokenType::Floor);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::floor(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Floor:
-// 				this.match(TokenType.Floor);
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addFloor( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Abs:
+			this->match(InterpreterTokenType::Abs);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::abs(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Abs:
-// 				this.match(TokenType.Abs);
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addAbs( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Min:
+			this->match(InterpreterTokenType::Min);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::minOp(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Min:
-// 				this.match(TokenType.Min);
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				this.program.addPush( Program.unlinkedReg("eax") );
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.match(TokenType.Comma);
-// 				type=this.doExpression();
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addPop( Program.unlinkedReg("ebx") );
-// 				this.program.addMin( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Max:
+			this->match(InterpreterTokenType::Max);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::maxOp(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Max:
-// 				this.match(TokenType.Max);
-// 				this.match(TokenType.LeftParen);
-// 				type=this.doExpression();
-// 				this.program.addPush( Program.unlinkedReg("eax") );
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.match(TokenType.Comma);
-// 				type=this.doExpression();
-// 				if (this.typesDontMatch(type, IdentityType.Double)) this.typeMismatch(IdentityType.Double, type);
-// 				this.program.addPop( Program.unlinkedReg("ebx") );
-// 				this.program.addMax( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		case InterpreterTokenType::Clamp:
+			this->match(InterpreterTokenType::Clamp);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::maxOp(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::minOp(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 			case TokenType.Clamp:
+		case InterpreterTokenType::Len:
+			this->match(InterpreterTokenType::Len);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::String);
+			this->program.addCode(OpCode::len(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::Double;
 
-// 				this.match(TokenType.Clamp);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.Double);
+		case InterpreterTokenType::SubStr:
+			this->match(InterpreterTokenType::SubStr);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::String);
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::Comma);
+			this->assertType(this->doExpression(), IdentityType::Double);
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::ecx), UnlinkedObj(RegisterId::eax)));
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::eax)));
+			this->program.addCode(OpCode::subStr(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::ecx)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::String;
 
-// 				this.program.addPush( Program.unlinkedReg("eax") );
+		case InterpreterTokenType::Trim:
+			this->match(InterpreterTokenType::Trim);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::String);
+			this->program.addCode(OpCode::trim(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::String;
 
-// 				this.match(TokenType.Comma);
-// 				this.matchType(this.doExpression(), IdentityType.Double);
+		case InterpreterTokenType::UCase:
+			this->match(InterpreterTokenType::UCase);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::String);
+			this->program.addCode(OpCode::ucase(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::String;
 
-// 				this.program.addPop( Program.unlinkedReg("ebx") );
-// 				this.program.addMax( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 				this.program.addPush( Program.unlinkedReg("eax") );
+		case InterpreterTokenType::LCase:
+			this->match(InterpreterTokenType::LCase);
+			this->match(InterpreterTokenType::LeftParen);
+			this->assertType(this->doExpression(), IdentityType::String);
+			this->program.addCode(OpCode::lcase(UnlinkedObj(RegisterId::eax)));
+			this->match(InterpreterTokenType::RightParen);
+			return IdentityType::String;
+		default:
+			this->throwError("expected factor but found "+ TokenTypeToString(this->token->type));
+	}
+}
 
-// 				this.match(TokenType.Comma);
-// 				this.matchType(this.doExpression(), IdentityType.Double);
+IdentityType Parser::doExponentiation() {
+	IdentityType leftType = this->doFactor();
 
-// 				this.program.addPop( Program.unlinkedReg("ebx") );
-// 				this.program.addMin( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
+	while (this->isNotEnd() && this->isPowerOp()) {
+		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
 
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		InterpreterTokenType powerOp = this->token->type;
+		this->match(powerOp);
+		IdentityType rightType = this->doFactor();
+		this->assertType(leftType, IdentityType::Double);
+		this->assertType(rightType, IdentityType::Double);
 
-// 			case TokenType.Len:
-// 				this.match(TokenType.Len);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.String);
-// 				this.program.addLen( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.Double;
+		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
-// 			case TokenType.SubStr:
-// 				this.match(TokenType.SubStr);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.String);
+		switch (powerOp) {
+			case InterpreterTokenType::Exponent:
+				this->program.addCode(OpCode::exponent( UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax) ));
+				this->program.addCode(OpCode::mov( UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx) ));
+				break;
+		}
+		leftType = rightType;
+	}
 
-// 				this.program.addPush( Program.unlinkedReg("eax") );
+	return leftType;
+}
 
-// 				this.match(TokenType.Comma);
-// 				this.matchType(this.doExpression(), IdentityType.Double);
 
-// 				this.program.addPush( Program.unlinkedReg("eax") );
+IdentityType Parser::doTerm() {
+	IdentityType leftType = this->doExponentiation();
 
-// 				this.match(TokenType.Comma);
-// 				this.matchType(this.doExpression(), IdentityType.Double);
+	while (this->isNotEnd() && this->isTermOp()) {
+		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
 
-// 				this.program.addMov( Program.unlinkedReg("ecx"), Program.unlinkedReg("eax") );
-// 				this.program.addPop( Program.unlinkedReg("ebx") );
-// 				this.program.addPop( Program.unlinkedReg("eax") );
-// 				this.program.addSubStr( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx"), Program.unlinkedReg("ecx") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.String;
+		InterpreterTokenType termOp = this->token->type;
+		this->match(termOp);
+		IdentityType rightType = this->doExponentiation();
+		this->assertType(leftType, IdentityType::Double);
+		this->assertType(rightType, IdentityType::Double);
 
-// 			case TokenType.Trim:
-// 				this.match(TokenType.Trim);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.String);
-// 				this.program.addTrim( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.String;
+		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
-// 			case TokenType.LCase:
-// 				this.match(TokenType.LCase);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.String);
-// 				this.program.addLCase( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.String;
+		switch (termOp) {
+		case InterpreterTokenType::Multiply:
+			this->program.addCode(OpCode::mul(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			break;
+		case InterpreterTokenType::Divide:
+			this->program.addCode(OpCode::div(UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax)));
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			break;
+		case InterpreterTokenType::Mod:
+			this->program.addCode(OpCode::mod(UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax)));
+			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			break;
+		}
+		leftType = rightType;
+	}
 
-// 			case TokenType.UCase:
-// 				this.match(TokenType.UCase);
-// 				this.match(TokenType.LeftParen);
-// 				this.matchType(this.doExpression(), IdentityType.String);
-// 				this.program.addUCase( Program.unlinkedReg("eax") );
-// 				this.match(TokenType.RightParen);
-// 				return IdentityType.String;
+	return leftType;
+}
 
-// 			default:
-// 				this.throwError("expected factor but found "+this.symbolToString(this.token.type));
-// 		}
-// 	}
+IdentityType Parser::doAdd() {
+	IdentityType leftType = this->doTerm();
 
-// 	doExponentiation(){
-// 		let leftType=this.doFactor();
+	while (this->isNotEnd() && this->isTermOp()) {
+		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
 
-// 		while (this.isNotEnd() && this.isPowerOp()){
-// 			this.program.addPush( Program.unlinkedReg("eax") );
+		InterpreterTokenType addOp = this->token->type;
+		this->match(addOp);
+		IdentityType rightType = this->doTerm();
+		this->assertType(rightType, leftType);
 
-// 			let powerOp=this.token.type;
-// 			this.match(powerOp);
-// 			let rightType=this.doFactor();
-// 			if (this.typesDontMatch(leftType, IdentityType.Double)) this.typeMismatch(IdentityType.Double, leftType);
-// 			if (this.typesDontMatch(rightType, IdentityType.Double)) this.typeMismatch(IdentityType.Double, rightType);
+		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
+		switch (addOp) {
+		case InterpreterTokenType::Plus:
+			if (leftType == IdentityType::String) {
+				this->program.addCode(OpCode::concat(UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax)));
+				this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			} else {
+				this->assertType(leftType, IdentityType::Double);
+				this->program.addCode(OpCode::add(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			}
+			break;
+		case InterpreterTokenType::Minus:
+			this->assertType(leftType, IdentityType::Double);
+			this->program.addCode(OpCode::sub(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
+			this->program.addCode(OpCode::neg(UnlinkedObj(RegisterId::eax)));
+			break;
+		}
+		leftType = rightType;
+	}
 
-// 			switch (powerOp){
-// 				case TokenType.Exponent:
-// 					this.program.addExponent( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
-// 					this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					break;
-// 			}
-
-// 			leftType=rightType;
-// 		}
-
-// 		return leftType;
-// 	}
-
-// 	doTerm(){
-// 		let leftType=this.doExponentiation();
-
-// 		while (this.isNotEnd() && this.isTermOp()){
-// 			this.program.addPush( Program.unlinkedReg("eax") );
-
-// 			let termOp=this.token.type;
-// 			this.match(termOp);
-// 			let rightType=this.doExponentiation();
-// 			if (this.typesDontMatch(leftType, IdentityType.Double)) this.typeMismatch(IdentityType.Double, leftType);
-// 			if (this.typesDontMatch(rightType, IdentityType.Double)) this.typeMismatch(IdentityType.Double, rightType);
-
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
-
-// 			switch (termOp){
-// 				case TokenType.Multiply:
-// 					this.program.addMul( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					break;
-// 				case TokenType.Divide:
-// 					this.program.addDiv( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
-// 					this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					break;
-// 				case TokenType.Mod:
-// 					this.program.addMod( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
-// 					this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					break;
-// 			}
-
-// 			leftType=rightType;
-// 		}
-
-// 		return leftType;
-// 	}
-
-// 	doAdd(){
-// 		let leftType=this.doTerm();
-
-// 		while (this.isNotEnd() && this.isAddOp()){
-// 			this.program.addPush( Program.unlinkedReg("eax") );
-
-// 			let addOp=this.token.type;
-// 			this.match(addOp);
-// 			let rightType=this.doTerm();
-
-// 			if (this.typesDontMatch(leftType, rightType)) this.typeMismatch(leftType, rightType);
-
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
-
-// 			switch (addOp){
-// 				case TokenType.Plus:
-// 					if (leftType===IdentityType.String){
-// 						this.program.addConcat( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
-// 						this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					}else if (leftType===IdentityType.Double){
-// 						this.program.addAdd( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					}else{
-// 						this.throwError("'+' operator only valid for strings or doubles");
-// 					}
-// 					break;
-// 				case TokenType.Minus:
-// 					if (leftType!==IdentityType.Double) this.throwError("'-' operator only valid for doubles");
-// 					this.program.addSub( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 					this.program.addNeg( Program.unlinkedReg("eax") );
-// 					break;
-// 			}
-
-// 			leftType=rightType;
-// 		}
-
-// 		return leftType;
-// 	}
+	return leftType;
+}
 
 // 	doCompare(){
 // 		let leftType=this.doAdd();

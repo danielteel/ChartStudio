@@ -134,6 +134,16 @@ public:
 
 	IdentityType doFuncCall(string funcName);
 
+	IdentityType doIdent();
+
+	IdentityType doFactor();
+
+	IdentityType doExponentiation();
+
+	IdentityType doTerm();
+
+	IdentityType doAdd();
+
 	string errorMsg;
 
 	vector<TokenObj> tokens;
