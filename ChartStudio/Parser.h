@@ -135,6 +135,11 @@ public:
 	void doIf(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType);
 	void doWhile(optional<size_t> returnToBranch, optional<IdentityType> returnType);
 	void doLoop(optional<size_t> returnToBranch, optional<IdentityType> returnType);
+	void doFor(optional<size_t> returnToBranch, optional<IdentityType> returnType);
+	void doBreak(optional<size_t> breakToBranch);
+	void doExit();
+	void doAssignOrDeclare(bool cantBeFunction);
+	void doDeclare(bool cantBeFunction);
 
 	string errorMsg;
 

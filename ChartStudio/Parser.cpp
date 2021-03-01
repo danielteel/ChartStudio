@@ -930,146 +930,140 @@ void Parser::doLoop(optional<size_t> returnToBranch, optional<IdentityType> retu
 	this->program.addCode(OpCode::label(endLabel));
 }
 
-// 	doFor(returnToBranch, returnType){
-// 		const compareLabel = this.newBranch();
-// 		const incLabel = this.newBranch();
-// 		const blockLabel = this.newBranch();
-// 		const endLabel = this.newBranch();
+void Parser::doFor(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	size_t compareLabel = this->newBranch();
+	size_t incLabel = this->newBranch();
+	size_t blockLabel = this->newBranch();
+	size_t endLabel = this->newBranch();
 
+	this->pushScope();
 
-// 		this.pushScope();
+	this->match(InterpreterTokenType::For);
+	this->match(InterpreterTokenType::LeftCurly);
 
-// 		this.match(TokenType.For);//								for
-// 		this.match(TokenType.LeftParen);//							(
+	if (this->isNotEnd() && this->token->type == InterpreterTokenType::LineDelim) {
+		this->doAssignOrDeclare(true);
+	} else {
+		this->match(InterpreterTokenType::LineDelim);
+	}
 
-// 		if (this.token?.type!==TokenType.LineDelim){//				[allocate || init]
-// 			this.doAssignOrDeclare(true);
-// 		}else{
-// 			this.match(TokenType.LineDelim);//						;
-// 		}
+	this->program.addCode(OpCode::label(compareLabel));
 
-// 		this.program.addLabel( compareLabel );
+	if (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim) {
+		if (this->doExpression() != IdentityType::Bool) {
+			this->program.addCode(OpCode::toBool(UnlinkedObj(RegisterId::eax)));
+		}
 
-// 		if (this.token?.type!==TokenType.LineDelim){//				[expression]
-// 			let type=this.doExpression();
-// 			if (type!==IdentityType.Bool){
-// 				this.program.addToBool( Program.unlinkedReg("eax") );
-// 			}
-// 			this.program.addTest( Program.unlinkedReg("eax") );
-// 			this.program.addJE( endLabel );
-// 		}
+		this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+		this->program.addCode(OpCode::je(endLabel));
+	}
+	this->program.addCode(OpCode::jmp(blockLabel));
+	this->program.addCode(OpCode::label(incLabel));
+	this->match(InterpreterTokenType::LineDelim);
 
-// 		this.program.addJmp( blockLabel );
-// 		this.program.addLabel( incLabel );
+	if (this->isNotEnd() && this->token->type != InterpreterTokenType::RightParen) {
+		this->doAssignment(false);
+	}
+	this->match(InterpreterTokenType::RightParen);
+	this->program.addCode(OpCode::jmp(compareLabel));
+	this->program.addCode(OpCode::label(blockLabel));
 
-// 		this.match(TokenType.LineDelim);//							;
+	this->doBlock(endLabel, returnToBranch, false, true, false, returnType);
 
-// 		if (this.token?.type!==TokenType.RightParen){//				[assignment] 
-// 			this.doAssignment(false);
-// 		}
+	this->program.addCode(OpCode::jmp(incLabel));
+	this->program.addCode(OpCode::label(endLabel));
 
-// 		this.program.addJmp( compareLabel );
+	this->popScope();
+	this->program.addCode(OpCode::codeLine(""));
+}
 
-// 		this.match(TokenType.RightParen);//							)
+void Parser::doBreak(optional<size_t> breakToBranch) {
+	this->match(InterpreterTokenType::Break);
+	if (breakToBranch == nullopt) this->throwError("no loop to break from");
 
-// 		this.program.addLabel( blockLabel );
+	this->program.addCode(OpCode::jmp(*breakToBranch));
 
-// 		this.doBlock(endLabel, returnToBranch, false, true, false, returnType);//{ block }
+	this->match(InterpreterTokenType::LineDelim);
+}
 
-// 		this.program.addJmp( incLabel );
-// 		this.program.addLabel( endLabel );
+void Parser::doExit() {
+	this->match(InterpreterTokenType::Exit);
+	if (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim) {
+		this->doExpression();
+		this->program.addCode(OpCode::exit(UnlinkedObj(RegisterId::eax)));
+	} else {
+		this->program.addCode(OpCode::exit(UnlinkedObj()));
+	}
+	this->match(InterpreterTokenType::LineDelim);
+}
 
-// 		this.popScope();
-// 		this.program.addCodeLine(null);
-// 	}
+void Parser::doAssignOrDeclare(bool cantBeFunction = false) {
+	switch (this->token->type) {
+	case InterpreterTokenType::Bool:
+	case InterpreterTokenType::Double:
+	case InterpreterTokenType::String:
+		this->doDeclare(cantBeFunction);
+		break;
+	default:
+		this->doAssignment(true);
+		break;
+	}
+}
 
-// 	doBreak(breakToBranch){
-// 		this.match(TokenType.Break);
-// 		if (breakToBranch===null || breakToBranch===undefined) this.throwError("no loop to break from");
-// 		this.program.addJmp( breakToBranch );
+void Parser::doDeclare(bool cantBeFunction = false) {
+	IdentityType declareType = IdentityType::Null;
 
-// 		this.match(TokenType.LineDelim);
-// 	}
+	switch (this->token->type) {
+		case InterpreterTokenType::Double:
+			declareType = IdentityType::Double;
+			break;
+		case InterpreterTokenType::Bool:
+			declareType = IdentityType::Bool;
+			break;
+		case InterpreterTokenType::String:
+			declareType = IdentityType::String;
+			break;
+		default:
+			this->throwError("unknown data type in declaration");
+	}
+	this->match(this->token->type);
 
-// 	doExit(){
-// 		this.match(TokenType.Exit);
-// 		if (this.token?.type !== TokenType.LineDelim){
-// 			this.doExpression();
-// 			this.program.addExit( Program.unlinkedReg("eax") );
-// 		}else{
-// 			this.program.addExit( Program.unlinkedNull() );
-// 		}
-// 		this.match(TokenType.LineDelim);
-// 	}
+	bool isFirstOne = true;
+	do {
+		string varName = this->token->sValue;
+		this->match(InterpreterTokenType::Ident);
 
-// 	doAssignOrDeclare(cantBeFunction=false){
-// 		switch (this.token.type){
-// 			case TokenType.Bool:
-// 			case TokenType.Double:
-// 			case TokenType.String:
-// 				 this.doDeclare(cantBeFunction);
-// 				 break;
-// 			default:
-// 				this.doAssignment(true); 
-// 				break;
-// 		}
-// 	}
+		if (this->isNotEnd() && !cantBeFunction && isFirstOne && this->token->type == InterpreterTokenType::LeftParen) {
+			this->doFunction(varName, declareType);
+			return;
+		} else {
+			ScopeObj identObj = this->addVar(varName, declareType);
+			UnlinkedObj unlinkedVar = UnlinkedObj(declareType, identObj.scope, identObj.index);
+			switch (declareType) {
+				case IdentityType::Double:
+					this->program.addCode(OpCode::allocDouble(unlinkedVar));
+					break;
+				case IdentityType::Bool:
+					this->program.addCode(OpCode::allocBool(unlinkedVar));
+					break;
+				case IdentityType::String:
+					this->program.addCode(OpCode::allocString(unlinkedVar));
+					break;
+				default:
+					this->throwError("unknown data type in declaration");
+			}
+			if (this->isNotEnd() && this->token->type == InterpreterTokenType::Assignment) {
+				this->match(InterpreterTokenType::Assignment);
+				this->assertType(this->doExpression(), declareType);
+				this->program.addCode(OpCode::mov(unlinkedVar, UnlinkedObj(RegisterId::eax)));
+			}
+		}
+		if (this->isNotEnd() && this->token->type == InterpreterTokenType::Comma) this->match(InterpreterTokenType::Comma);
+		isFirstOne = false;
+	} while (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim);
 
-// 	doDeclare(cantBeFunction=false){
-// 		let declareType=null;
-// 		switch (this.token?.type){
-// 			case TokenType.Double:
-// 				declareType=IdentityType.Double;
-// 				break;
-// 			case TokenType.Bool:
-// 				declareType=IdentityType.Bool;
-// 				break;
-// 			case TokenType.String:
-// 				declareType=IdentityType.String;
-// 				break;
-// 			default:
-// 				this.throwError("unknown data type in declaration");
-// 		}
-// 		this.match(this.token.type);
-
-// 		let isFirstOne=true;
-
-// 		do {
-// 			let varName = this.token?.value;
-// 			this.match(TokenType.Ident);
-
-// 			if (cantBeFunction===false && isFirstOne && this.token?.type===TokenType.LeftParen){
-// 				this.doFunction(varName, declareType);
-// 				return;
-// 			}else{
-// 				let identObj=this.addVar(varName, declareType);
-// 				let unlinkedVar=Program.unlinkedVariable(declareType, identObj.scope, identObj.index, varName);
-// 				switch (declareType){
-// 					case IdentityType.Double:
-// 						this.program.addDouble( unlinkedVar );
-// 						break;
-// 					case IdentityType.Bool:
-// 						this.program.addBool( unlinkedVar );
-// 						break;
-// 					case IdentityType.String:
-// 						this.program.addString( unlinkedVar );
-// 						break;
-// 					default:
-// 						this.throwError("unknown data type in declaration");
-// 				}
-// 				if (this.token?.type===TokenType.Assignment){
-// 					this.match(TokenType.Assignment);
-// 					let expType=this.doExpression();
-// 					if (this.typesDontMatch(expType,declareType)) this.typeMismatch(declareType, expType);
-// 					this.program.addMov( unlinkedVar, Program.unlinkedReg("eax") );
-// 				}
-// 			}
-// 			if (this.token?.type===TokenType.Comma) this.match(TokenType.Comma);
-
-// 			isFirstOne=false;
-// 		} while (this.isNotEnd() && this.token.type!==TokenType.LineDelim)
-// 		this.match(TokenType.LineDelim);
-// 	}
+	this->match(InterpreterTokenType::LineDelim);
+}
 
 
 // 	doFunction(name, type){
