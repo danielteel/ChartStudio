@@ -1065,95 +1065,92 @@ void Parser::doDeclare(bool cantBeFunction = false) {
 	this->match(InterpreterTokenType::LineDelim);
 }
 
+void Parser::doFunction(string name, IdentityType type) {
+	size_t returnToBranch = this->newBranch();
+	size_t skipFuncBranch = this->newBranch();
+	size_t funcBlockBranch = this->newBranch();
 
-// 	doFunction(name, type){
-// 		const returnToBranch=this.newBranch();
-// 		const skipFuncBranch = this.newBranch();
-// 		const funcBlockBranch = this.newBranch();
+	this->program.addCode(OpCode::jmp(skipFuncBranch));
 
-// 		this.program.addJmp( skipFuncBranch );
+	this->pushAllocScope();
+	size_t funcAddress = this->program.addCode(OpCode::label(funcBlockBranch));
 
-// 		this.pushAllocScope();
-// 		const funcAddress=this.program.addLabel( funcBlockBranch );
+	vector<IdentityType> paramTypes;
+	vector<string> paramIdents;
+	vector<ScopeObj> paramObjs;
 
-// 		let paramTypes=[];
-// 		let paramIdents=[];
-// 		let paramObjs=[];
+	this->match(InterpreterTokenType::LeftParen);
 
-// 		this.match(TokenType.LeftParen);
-// 		while (this.isNotEnd() && this.token.type!==TokenType.RightParen){
-// 			switch (this.token.type){
-// 				case TokenType.Double:
-// 					paramTypes.push(IdentityType.Double);
-// 					break;
-// 				case TokenType.Bool:
-// 					paramTypes.push(IdentityType.Bool);
-// 					break;
-// 				case TokenType.String:
-// 					paramTypes.push(IdentityType.String);
-// 					break;
-// 				default:
-// 					this.throwError("unexpected token in parameter list "+this.token.type.toString());
-// 			}
-// 			this.match(this.token.type);
+	while (this->isNotEnd() && this->token->type != InterpreterTokenType::RightParen) {
+		switch (this->token->type) {
+			case InterpreterTokenType::Double:
+				paramTypes.push_back(IdentityType::Double);
+				break;
+			case InterpreterTokenType::Bool:
+				paramTypes.push_back(IdentityType::Bool);
+				break;
+			case InterpreterTokenType::String:
+				paramTypes.push_back(IdentityType::String);
+				break;
+			default:
+				this->throwError("unexpected token in parameter list " + TokenTypeToString(this->token->type));
+		}
+		this->match(this->token->type);
 
-// 			paramIdents.push(this.token?.value);
-// 			this.match(TokenType.Ident);
+		if (this->isNotEnd()) paramIdents.push_back(this->token->sValue);
+		this->match(InterpreterTokenType::Ident);
 
-// 			if (this.token?.type === TokenType.Comma){
-// 				this.match(TokenType.Comma);
-// 				if (this.token?.type===TokenType.RightParen) this.throwError("expected another parameter, but got a )");
-// 			}
-// 		}
-// 		this.match(TokenType.RightParen);
+		if (this->isNotEnd() && this->token->type == InterpreterTokenType::Comma) {
+			this->match(InterpreterTokenType::Comma);
+			if (this->isNotEnd() && this->token->type == InterpreterTokenType::RightParen) this->throwError("expected another parameter, but got a )");
+		}
+	}
+	this->match(InterpreterTokenType::RightParen);
 
-// 		let identObj = this.addFunction(name, type, funcBlockBranch, paramTypes);
-// 		if (!identObj) this.throwError("failed to add function '"+name+"' to ident list");
+	ScopeObj identObj = this->addFunction(name, type, funcBlockBranch, paramTypes);
 
-// 		this.pushScope();
-// 		for (let i=0;i<paramIdents.length;i++){
-// 			let obj=this.addVar(paramIdents[i], paramTypes[i]);
-// 			if (!obj) this.throwError("attempted to push null param to list on function '"+name+"'")
-// 			paramObjs.push(obj);
-// 		}
+	this->pushScope();
+	for (size_t i = 0; i < paramIdents.size(); i++) {
+		ScopeObj obj = this->addVar(paramIdents[i], paramTypes[i]);
+		paramObjs.push_back(obj);
+	}
 
-// 		this.doBlock(null, returnToBranch, true, true, true, type);
+	this->doBlock(nullopt, returnToBranch, true, true, true, type);
 
-// 		this.popScope();
-// 		this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedNull() );
+	this->popScope();
+	this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj()));
+	this->program.addCode(OpCode::label(returnToBranch));
+	this->program.addCode(OpCode::popScope(this->allocScopeIndex));
+	this->program.addCode(OpCode::ret());
 
-// 		this.program.addLabel( returnToBranch );
-// 		this.program.addPopScope( this.allocScopeIndex );
-// 		this.program.addRet();
+	vector<OpCode> funcPreamble;
+	funcPreamble.push_back(OpCode::pushScope(this->allocScopeIndex, this->allocScope[this->allocScopeIndex]));
 
-// 		let funcPreamble=[];
-// 		funcPreamble.push(this.program.addPushScope( this.allocScopeIndex, this.allocScope[this.allocScopeIndex], true ));
+	for (size_t i = paramObjs.size() - 1; i >= 0; i--) {
+		UnlinkedObj unlinkedParam = UnlinkedObj(paramObjs[i].type, paramObjs[i].scope, paramObjs[i].index);
+		switch (paramObjs[i].type) {
+			case IdentityType::Bool:
+				funcPreamble.push_back(OpCode::allocBool(unlinkedParam));
+				break;
+			case IdentityType::Double:
+				funcPreamble.push_back(OpCode::allocDouble(unlinkedParam));
+				break;
+			case IdentityType::String:
+				funcPreamble.push_back(OpCode::allocString(unlinkedParam));
+				break;
+			default:
+				this->throwError("unexpected token in parameter list " + TokenTypeToString(this->token->type));
+		}
+	}
 
-// 		for (let i=paramObjs.length-1;i>=0;i--){
-// 			let unlinkedParam=Program.unlinkedVariable(paramObjs[i].type, paramObjs[i].scope, paramObjs[i].index, paramObjs[i].name);
-// 			switch (paramObjs[i].type){
-// 			case IdentityType.Bool:
-// 				funcPreamble.push(this.program.addBool( unlinkedParam, true ));
-// 				break;
-// 			case IdentityType.Double:
-// 				funcPreamble.push(this.program.addDouble( unlinkedParam, true ));
-// 				break;
-// 			case IdentityType.String:
-// 				funcPreamble.push(this.program.addString( unlinkedParam, true ));
-// 				break;
-// 			default:
-// 				this.throwError("unexpected type in parameter list allocation "+paramTypes[i].toString());
-// 			}
-// 			funcPreamble.push(this.program.addPop( unlinkedParam, true ));
-// 		}
-
-// 		this.program.code.splice(funcAddress+1,0,...funcPreamble);
+	this->program.insertCode(funcPreamble, funcAddress);
+	
+	this->popAllocScope();
+	this->program.addCode(OpCode::label(skipFuncBranch));
+	this->program.addCode(OpCode::codeLine(""));
+}
 
 
-// 		this.popAllocScope();
-// 		this.program.addLabel( skipFuncBranch );
-// 		this.program.addCodeLine(null);
-// 	}
 
 // 	doReturn(returnToBranch, returnType){
 // 		this.match(TokenType.Return);

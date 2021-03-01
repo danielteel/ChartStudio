@@ -141,6 +141,8 @@ public:
 	void doAssignOrDeclare(bool cantBeFunction);
 	void doDeclare(bool cantBeFunction);
 
+	void doFunction(string name, IdentityType type);
+
 	string errorMsg;
 
 	vector<TokenObj> tokens;
