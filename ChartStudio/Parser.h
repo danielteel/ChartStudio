@@ -105,44 +105,36 @@ public:
 	void parse(vector<ExternalDef> externals);
 	void pushAllocScope();
 	void popAllocScope();
-
 	void pushScope();
-
 	void popScope();
 
 	ScopeObj addToCurrentScope(string name, IdentityType type, size_t branch, const vector<IdentityType>, IdentityType returnType);
-
 	ScopeObj * getIdentity(string name, bool onlyInCurrentScope);
-
 	ScopeObj addVar(string name, IdentityType type);
-
 	ScopeObj addFunction(string name, IdentityType returnType, size_t branch, vector<IdentityType> params);
 
 	bool isPowerOp();
-
 	bool isTermOp();
-
 	bool isAddOp();
-
 	bool isCompareOp();
-
 	bool isOrOp();
-
 	bool isAndOp();
-
 	bool isTernaryOp();
 
 	IdentityType doFuncCall(string funcName);
-
 	IdentityType doIdent();
-
 	IdentityType doFactor();
-
 	IdentityType doExponentiation();
-
 	IdentityType doTerm();
-
 	IdentityType doAdd();
+	IdentityType doCompare();
+	IdentityType doAnd();
+	IdentityType doOr();
+	IdentityType doExpression();
+
+	void doIf(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType);
+	void doWhile(optional<size_t> returnToBranch, optional<IdentityType> returnType);
+	void doLoop(optional<size_t> returnToBranch, optional<IdentityType> returnType);
 
 	string errorMsg;
 

@@ -662,9 +662,8 @@ IdentityType Parser::doExponentiation() {
 
 		InterpreterTokenType powerOp = this->token->type;
 		this->match(powerOp);
-		IdentityType rightType = this->doFactor();
 		this->assertType(leftType, IdentityType::Double);
-		this->assertType(rightType, IdentityType::Double);
+		this->assertType(this->doFactor(), IdentityType::Double);
 
 		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
@@ -674,7 +673,6 @@ IdentityType Parser::doExponentiation() {
 				this->program.addCode(OpCode::mov( UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx) ));
 				break;
 		}
-		leftType = rightType;
 	}
 
 	return leftType;
@@ -689,9 +687,8 @@ IdentityType Parser::doTerm() {
 
 		InterpreterTokenType termOp = this->token->type;
 		this->match(termOp);
-		IdentityType rightType = this->doExponentiation();
 		this->assertType(leftType, IdentityType::Double);
-		this->assertType(rightType, IdentityType::Double);
+		this->assertType(this->doExponentiation(), IdentityType::Double);
 
 		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
@@ -708,7 +705,6 @@ IdentityType Parser::doTerm() {
 			this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj(RegisterId::ebx)));
 			break;
 		}
-		leftType = rightType;
 	}
 
 	return leftType;
@@ -722,8 +718,7 @@ IdentityType Parser::doAdd() {
 
 		InterpreterTokenType addOp = this->token->type;
 		this->match(addOp);
-		IdentityType rightType = this->doTerm();
-		this->assertType(rightType, leftType);
+		this->assertType(this->doTerm(), leftType);
 
 		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
 
@@ -743,205 +738,197 @@ IdentityType Parser::doAdd() {
 			this->program.addCode(OpCode::neg(UnlinkedObj(RegisterId::eax)));
 			break;
 		}
-		leftType = rightType;
 	}
 
 	return leftType;
 }
 
-// 	doCompare(){
-// 		let leftType=this.doAdd();
+IdentityType Parser::doCompare() {
+	IdentityType leftType = this->doAdd();
 
-// 		while (this.isNotEnd() && this.isCompareOp()){
-// 			this.program.addPush( Program.unlinkedReg("eax") );
-// 			let compareOp=this.token.type;
-// 			this.match(compareOp);
-// 			let rightType=this.doAdd();
+	while (this->isNotEnd() && this->isCompareOp()) {
+		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
+		InterpreterTokenType comareOp = this->token->type;
+		this->match(comareOp);
+		this->assertType(this->doAdd(), leftType);
 
-// 			if (this.typesDontMatch(leftType, rightType)) this.typeMismatch(leftType, rightType);
+		this->program.addCode(OpCode::pop(UnlinkedObj(RegisterId::ebx)));
+		this->program.addCode(OpCode::cmp(UnlinkedObj(RegisterId::ebx), UnlinkedObj(RegisterId::eax)));
 
+		switch (comareOp) {
+			case InterpreterTokenType::Equals:
+				this->program.addCode(OpCode::se(UnlinkedObj(RegisterId::eax)));
+				break;
+			case InterpreterTokenType::NotEquals:
+				this->program.addCode(OpCode::sne(UnlinkedObj(RegisterId::eax)));
+				break;
+			case InterpreterTokenType::Greater:
+				this->assertType(leftType, IdentityType::Double);
+				this->program.addCode(OpCode::sa(UnlinkedObj(RegisterId::eax)));
+				break;
+			case InterpreterTokenType::GreaterEquals:
+				this->assertType(leftType, IdentityType::Double);
+				this->program.addCode(OpCode::sae(UnlinkedObj(RegisterId::eax)));
+				break;
+			case InterpreterTokenType::Lesser:
+				this->assertType(leftType, IdentityType::Double);
+				this->program.addCode(OpCode::sb(UnlinkedObj(RegisterId::eax)));
+				break;
+			case InterpreterTokenType::LesserEquals:
+				this->assertType(leftType, IdentityType::Double);
+				this->program.addCode(OpCode::sbe(UnlinkedObj(RegisterId::eax)));
+				break;
+		}
+		leftType = IdentityType::Bool;
+	}
 
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
-// 			this.program.addCmp( Program.unlinkedReg("ebx"), Program.unlinkedReg("eax") );
+	return leftType;
+}
 
-// 			switch (compareOp){
-// 				case TokenType.Equals:
-// 					this.program.addSE( Program.unlinkedReg("eax") );
-// 					break;
-// 				case TokenType.NotEquals:
-// 					this.program.addSNE( Program.unlinkedReg("eax") );
-// 					break;
-// 				case TokenType.Greater:
-// 					if (leftType!==IdentityType.Double) this.throwError("'>' operator only valid for double types");
-// 					this.program.addSA( Program.unlinkedReg("eax") );
-// 					break;
-// 				case TokenType.GreaterEquals:
-// 					if (leftType!==IdentityType.Double) this.throwError("'>=' operator only valid for double types");
-// 					this.program.addSAE( Program.unlinkedReg("eax") );
-// 					break;
-// 				case TokenType.Lesser:
-// 					if (leftType!==IdentityType.Double) this.throwError("'<' operator only valid for double types");
-// 					this.program.addSB( Program.unlinkedReg("eax") );
-// 					break;
-// 				case TokenType.LesserEquals:
-// 					if (leftType!==IdentityType.Double) this.throwError("'<=' operator only valid for double types");
-// 					this.program.addSBE( Program.unlinkedReg("eax") );
-// 					break;
-// 			}
+IdentityType Parser::doAnd() {
+	IdentityType leftType = this->doCompare();
 
-// 			leftType=IdentityType.Bool;
-// 		}
+	while (this->isNotEnd() && this->isAndOp()) {
+		this->assertType(leftType, IdentityType::Bool);
+		this->match(InterpreterTokenType::And);
 
-// 		return leftType;
-// 	}
+		size_t shortCircuitBranch = this->newBranch();
+		this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+		this->program.addCode(OpCode::je(shortCircuitBranch));
 
-// 	doAnd(){
-// 		let leftType=this.doCompare();
+		this->assertType(this->doCompare(), IdentityType::Bool);
 
-// 		while (this.isNotEnd() && this.isAndOp()){
-// 			if (this.typesDontMatch(IdentityType.Bool, leftType)) this.typeMismatch(IdentityType.Bool, leftType);
+		this->program.addCode(OpCode::label(shortCircuitBranch));
+	}
 
-// 			let shortCircuitBranch=this.newBranch();
-// 			this.program.addCmp( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Bool, true) );
-// 			this.program.addJNE( shortCircuitBranch );
+	return leftType;
+}
 
-// 			this.program.addPush( Program.unlinkedReg("eax") );
+IdentityType Parser::doOr() {
+	IdentityType leftType = this->doAnd();
 
-// 			this.match(TokenType.And);
+	while (this->isNotEnd() && this->isOrOp()) {
+		this->assertType(leftType, IdentityType::Bool);
+		this->match(InterpreterTokenType::Or);
 
-// 			let rightType=this.doCompare();
-// 			if (this.typesDontMatch(IdentityType.Bool, rightType)) this.typeMismatch(IdentityType.Bool, rightType);
+		size_t shortCircuitBranch = this->newBranch();
+		this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+		this->program.addCode(OpCode::jne(shortCircuitBranch));
 
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
-// 			this.program.addAnd( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 			this.program.addLabel( shortCircuitBranch );
-// 		}
+		this->assertType(this->doAnd(), IdentityType::Bool);
 
-// 		return leftType;
-// 	}
+		this->program.addCode(OpCode::label(shortCircuitBranch));
+	}
 
-// 	doOr(){
-// 		let leftType=this.doAnd();
+	return leftType;
+}
 
-// 		while (this.isNotEnd() && this.isOrOp()){
-// 			if (this.typesDontMatch(IdentityType.Bool, leftType)) this.typeMismatch(IdentityType.Bool, leftType);
+IdentityType Parser::doExpression() {
+	IdentityType returnType = this->doOr();
 
-// 			let shortCircuitBranch=this.newBranch();
-// 			this.program.addCmp( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Bool, true) );
-// 			this.program.addJE( shortCircuitBranch );
+	while (this->isNotEnd() && this->isTernaryOp()) {
+		this->assertType(returnType, IdentityType::Bool);
 
-// 			this.program.addPush( Program.unlinkedReg("eax") );
+		this->match(InterpreterTokenType::Question);
 
-// 			this.match(TokenType.Or);
+		size_t falseBranch = this->newBranch();
+		size_t doneBranch = this->newBranch();
 
-// 			let rightType=this.doAnd();
-// 			if (this.typesDontMatch(IdentityType.Bool, rightType)) this.typeMismatch(IdentityType.Bool, rightType);
+		this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+		this->program.addCode(OpCode::je(falseBranch));
 
-// 			this.program.addPop( Program.unlinkedReg("ebx") );
-// 			this.program.addOr( Program.unlinkedReg("eax"), Program.unlinkedReg("ebx") );
-// 			this.program.addLabel( shortCircuitBranch );
-// 		}
+		returnType = this->doExpression();
 
-// 		return leftType;
-// 	}
+		this->match(InterpreterTokenType::Colon);
 
-// 	doExpression(){
-// 		let leftType=this.doOr();
-// 		let returnType=null;
+		this->program.addCode(OpCode::jmp(doneBranch));
+		this->program.addCode(OpCode::label(falseBranch));
 
-// 		while (this.isNotEnd() && this.isTernaryOp()){
-// 			if (this.typesDontMatch(IdentityType.Bool, leftType)) this.typeMismatch(IdentityType.Bool, leftType);
+		this->assertType(this->doExpression(), returnType);
 
+		this->program.addCode(OpCode::label(doneBranch));
+	}
 
-// 			this.match(TokenType.Question);
-
-// 			let falseBranch=this.newBranch();
-// 			let doneBranch=this.newBranch();
-// 			this.program.addCmp( Program.unlinkedReg("eax"), Program.unlinkedLiteral(IdentityType.Bool, true) );
-// 			this.program.addJNE( falseBranch );
-
-// 			let trueType=this.doExpression();
-
-// 			if (returnType && this.typesDontMatch(returnType, trueType)) this.throwError("expected chained ternary operators to evaluate to same type");
-// 			if (!returnType) returnType=trueType;
-
-// 			this.match(TokenType.Colon);
-
-// 			this.program.addJmp( doneBranch );
-// 			this.program.addLabel( falseBranch );
-
-// 			let falseType=this.doExpression();
-
-// 			if (this.typesDontMatch(trueType, falseType))  this.throwError("expected ternary true/false branches to evaluate to same type");
-
-// 			this.program.addLabel( doneBranch );
-// 		}
-
-// 		if (returnType){
-// 			return returnType;
-// 		}else{
-// 			return leftType;
-// 		}
-// 	}
-
-// 	doIf(breakToBranch, returnToBranch, returnType){
-// 		const elseLabel = this.newBranch();
-
-// 		this.match(TokenType.If);
-
-// 		this.match(TokenType.LeftParen);
-// 		let type=this.doExpression();
-// 		if (type!==IdentityType.Bool){
-// 			this.program.addToBool( Program.unlinkedReg("eax") );
-// 		}
-
-// 		this.program.addTest( Program.unlinkedReg("eax") );
-// 		this.program.addJE( elseLabel );
-// 		this.match(TokenType.RightParen);
-
-// 		this.doBlock(breakToBranch, returnToBranch, false, true, false, returnType);
-
-// 		if (this.isNotEnd() && this.token.type === TokenType.Else) {
-// 			const endLabel = this.newBranch();
-// 			this.program.addJmp( endLabel );
-// 			this.program.addLabel( elseLabel );
-
-// 			this.match(TokenType.Else);
-
-// 			this.doBlock(breakToBranch, returnToBranch, false, true, false, returnType);
-
-// 			this.program.addLabel( endLabel );
-// 		}else{
-// 			this.program.addLabel( elseLabel );
-// 		}
-
-// 		this.program.addCodeLine(null);
-// 	}
-
-// 	doWhile(returnToBranch, returnType){
-// 		const loopLabel = this.newBranch();
-// 		const endLabel = this.newBranch();
+	return returnType;
+}
 
 
-// 		this.match(TokenType.While);
+void Parser::doIf(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	size_t elseLabel = this->newBranch();
 
-// 		this.program.addLabel( loopLabel );
+	this->match(InterpreterTokenType::If);
+	this->match(InterpreterTokenType::LeftParen);
 
-// 		this.match(TokenType.LeftParen);
-// 		let type=this.doExpression();
-// 		if (type!==IdentityType.Bool){
-// 			this.program.addToBool( Program.unlinkedReg("eax") );
-// 		}
-// 		this.program.addTest( Program.unlinkedReg("eax") );
-// 		this.program.addJE( endLabel );
-// 		this.match(TokenType.RightParen);
+	if (this->doExpression() != IdentityType::Bool) {
+		this->program.addCode(OpCode::toBool(UnlinkedObj(RegisterId::eax)));
+	}
 
-// 		this.doBlock(endLabel, returnToBranch, false, true, false, returnType);
+	this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+	this->program.addCode(OpCode::je(elseLabel));
 
-// 		this.program.addJmp( loopLabel );
-// 		this.program.addLabel( endLabel );
-// 		this.program.addCodeLine(null);
-// 	}
+	this->match(InterpreterTokenType::RightParen);
+
+	this->doBlock(breakToBranch, returnToBranch, false, true, false, returnType);
+
+	if (this->isNotEnd() && this->token->type == InterpreterTokenType::Else) {
+		size_t endLabel = this->newBranch();
+		this->program.addCode(OpCode::jmp(endLabel));
+		this->program.addCode(OpCode::label(elseLabel));
+
+		this->match(InterpreterTokenType::Else);
+
+		this->doBlock(breakToBranch, returnToBranch, false, true, false, returnType);
+		this->program.addCode(OpCode::label(endLabel));
+	} else {
+		this->program.addCode(OpCode::label(elseLabel));
+	}
+
+	this->program.addCode(OpCode::codeLine(""));
+}
+
+void Parser::doWhile(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	size_t loopLabel = this->newBranch();
+	size_t endLabel = this->newBranch();
+
+	this->match(InterpreterTokenType::While);
+	this->match(InterpreterTokenType::LeftParen);
+
+	this->program.addCode(OpCode::label(loopLabel));
+	if (this->doExpression() != IdentityType::Bool) {
+		this->program.addCode(OpCode::toBool(UnlinkedObj(RegisterId::eax)));
+	}
+	this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+	this->program.addCode(OpCode::je(endLabel));
+	this->match(InterpreterTokenType::RightParen);
+
+	this->doBlock(endLabel, returnToBranch, false, true, false, returnType);
+
+	this->program.addCode(OpCode::jmp(loopLabel));
+	this->program.addCode(OpCode::label(endLabel));
+	this->program.addCode(OpCode::codeLine(""));
+}
+
+void Parser::doLoop(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	size_t loopLabel = this->newBranch();
+	size_t endLabel = this->newBranch();
+
+	this->match(InterpreterTokenType::Loop);
+
+	this->program.addCode(OpCode::label(loopLabel));
+
+	this->doBlock(endLabel, returnToBranch, false, true, false, returnType);
+
+	this->match(InterpreterTokenType::While);
+	this->match(InterpreterTokenType::LeftParen);
+	if (this->doExpression() != IdentityType::Bool) {
+		this->program.addCode(OpCode::toBool(UnlinkedObj(RegisterId::eax)));
+	}
+	this->match(InterpreterTokenType::RightParen);
+
+	this->program.addCode(OpCode::test(UnlinkedObj(RegisterId::eax)));
+	this->program.addCode(OpCode::jne(loopLabel));
+	this->program.addCode(OpCode::label(endLabel));
+}
 
 // 	doFor(returnToBranch, returnType){
 // 		const compareLabel = this.newBranch();
@@ -994,31 +981,6 @@ IdentityType Parser::doAdd() {
 
 // 		this.popScope();
 // 		this.program.addCodeLine(null);
-// 	}
-
-// 	doLoop(returnToBranch, returnType){
-// 		const loopLabel = this.newBranch();
-// 		const endLabel = this.newBranch();
-
-// 		this.program.addLabel( loopLabel );
-
-// 		this.match(TokenType.Loop);
-
-// 		this.doBlock(endLabel, returnToBranch, false, true, false, returnType);//{ block }
-
-// 		this.match(TokenType.While);
-// 		this.match(TokenType.LeftParen);
-
-// 		let type=this.doExpression();
-// 		if (type!==IdentityType.Bool){
-// 			this.program.addToBool( Program.unlinkedReg("eax") );
-// 		}
-
-// 		this.program.addTest( Program.unlinkedReg("eax") );
-// 		this.program.addJNE( loopLabel );
-// 		this.program.addLabel( endLabel );
-
-// 		this.match(TokenType.RightParen);
 // 	}
 
 // 	doBreak(breakToBranch){
