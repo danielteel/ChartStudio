@@ -4,19 +4,9 @@
 #include "Tokenizer.h"
 #include "OpObj.h"
 #include "Program.h"
-
+#include "UnlinkedObj.h"
 using namespace std;
 
-
-
-
-enum class IdentityType {
-	Null,
-	Bool,
-	Double,
-	String,
-	Function
-};
 
 class ExternalDef {
 	public:

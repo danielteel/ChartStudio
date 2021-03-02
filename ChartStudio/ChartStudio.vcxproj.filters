@@ -150,6 +150,12 @@
     <ClInclude Include="Program.h">
       <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="OpCode.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="UnlinkedObj.h">
+      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -261,6 +267,12 @@
       <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="Program.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="OpCode.cpp">
+      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="UnlinkedObj.cpp">
       <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
     </ClCompile>
   </ItemGroup>

@@ -5,6 +5,7 @@
 using namespace std;
 
 enum class InterpreterTokenType {
+	EndOfFile,
 	LineDelim,
 	NewLine,
 	Void,

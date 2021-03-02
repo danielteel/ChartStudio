@@ -28,6 +28,7 @@
 #include "helpers.h"
 
 #include "Tokenizer.h"
+#include "Parser.h"
 
 HINSTANCE hInst;
 char szTitle[] = "Chart Studio";
@@ -62,9 +63,15 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	Tokenizer tokenizer;
 	try {
-		tokenizer.tokenize("double a=0.5;\n string b='dude");
-	} catch (int e) {
+		tokenizer.tokenize("double a=0.5;\n string b='dude'");
+	} catch (char e) {
 		MessageBox(NULL, tokenizer.errorMsg.c_str(), tokenizer.errorMsg.c_str(), 0);
+	}
+	Parser parser(tokenizer.tokens);
+	try {
+		parser.parse({});
+	} catch (char e) {
+		MessageBox(NULL, parser.errorMsg.c_str(), parser.errorMsg.c_str(), 0);
 	}
 
 	hInst = hInstance; // Store instance handle in our global variable

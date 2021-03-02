@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Program.h"
 #include "OpObj.h"
-
+#include "OpCode.h"
 
 Program::Program() {
 	this->errorMsg = "";
@@ -35,8 +35,8 @@ void Program::insertCode(OpCode op, size_t afterThis) {
 }
 
 void Program::insertCode(vector<OpCode> opCodes, size_t afterThis) {
-	vector<OpCode>::iterator whereTo = this->code.begin() + afterThis;
-	for (size_t i = opCodes.size() - 1; i >= 0; i--) {
-		this->code.insert(whereTo, opCodes[i]);
+	if (opCodes.size() == 0) return;
+	for (size_t i = opCodes.size(); i > 0; i--) {
+		this->insertCode(opCodes[i-1], afterThis);
 	}
 }

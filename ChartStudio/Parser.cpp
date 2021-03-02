@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "OpCode.h"
 #include "Parser.h"
 
 
@@ -27,6 +28,8 @@ string TokenTypeToString(InterpreterTokenType type) {
 	switch (type) {
 		case InterpreterTokenType::LineDelim:
 			return string(";");
+		case InterpreterTokenType::EndOfFile:
+			return string("end of file");
 		case InterpreterTokenType::NewLine:
 			return string("new line");
 		case InterpreterTokenType::Void:
@@ -160,6 +163,7 @@ Parser::Parser(vector<TokenObj>& tokens) {
 
 	this->scopeIndex = 0;
 	this->scopes.clear();
+	this->scopes.push_back({});
 
 	this->allocScope.clear();
 	this->allocScope.push_back(0);
@@ -223,6 +227,7 @@ void Parser::getToken() {
 		while (this->token && this->token->type == InterpreterTokenType::NewLine) {
 			this->program.addCode(OpCode::codeLine(this->token->sValue));
 			this->tokenIndex++;
+			if (!this->isNotEnd()) break;
 			this->token = &this->tokens[this->tokenIndex];
 		}
 	}
@@ -246,6 +251,7 @@ void Parser::parse(vector<ExternalDef> externals) {
 	
 	this->scopeIndex = 0;
 	this->scopes.clear();
+	this->scopes.push_back({});
 
 	this->allocScope.clear();
 	this->allocScope.push_back(0);
@@ -263,7 +269,7 @@ void Parser::parse(vector<ExternalDef> externals) {
 	const size_t entryPointAddress = this->program.addCode(OpCode::label(entryPoint));
 	this->program.addCode(OpCode::codeLine(""));
 
-	this->doBlock(NULL, NULL, false, false, true);
+	this->doBlock(nullopt, nullopt, false, false, true, nullopt);
 	this->program.addCode(OpCode::codeLine(""));
 	this->program.addCode( OpCode::exit(UnlinkedObj()) );
 
@@ -315,9 +321,12 @@ ScopeObj Parser::addToCurrentScope(string name, IdentityType type, size_t branch
 
 
 ScopeObj* Parser::getIdentity(string name, bool onlyInCurrentScope=false) {
+	if (this->scopes.size() == 0) return nullptr;
 	for (size_t i = this->scopeIndex;i>=0;i--){
-		for (size_t j = 0; j < this->scopes[i].size(); j++) {
-			if (this->scopes[i][j].name == name) return &this->scopes[i][j];
+		if (this->scopes[i].size() > 0) {
+			for (size_t j = 0; j < this->scopes[i].size(); j++) {
+				if (this->scopes[i][j].name == name) return &this->scopes[i][j];
+			}
 		}
 		if (onlyInCurrentScope) break;
 	}
@@ -436,6 +445,7 @@ IdentityType Parser::doIdent() {
 	}
 
 	this->throwError("unknown ident type for '" + varName+"'");
+	return IdentityType::Null;
 }
 
 IdentityType Parser::doFactor() {
@@ -652,6 +662,7 @@ IdentityType Parser::doFactor() {
 		default:
 			this->throwError("expected factor but found "+ TokenTypeToString(this->token->type));
 	}
+	return IdentityType::Null;
 }
 
 IdentityType Parser::doExponentiation() {

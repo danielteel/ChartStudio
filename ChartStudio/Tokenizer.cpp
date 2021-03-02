@@ -26,7 +26,7 @@ void Tokenizer::tokenize(string code) {
 		this->next();
 	}
 
-	this->addToken(InterpreterTokenType::NewLine, this->currentLineText);
+	this->addToken(InterpreterTokenType::EndOfFile, this->currentLineText);
 }
 
 void Tokenizer::throwError(string message) {

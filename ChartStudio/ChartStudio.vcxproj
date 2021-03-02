@@ -176,6 +176,7 @@
     <ClInclude Include="Interpret.h" />
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="ListUI.h" />
+    <ClInclude Include="OpCode.h" />
     <ClInclude Include="OpObj.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Program.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="TRect.h" />
     <ClInclude Include="TSegment.h" />
     <ClInclude Include="UIData.h" />
+    <ClInclude Include="UnlinkedObj.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ButtonBar.cpp" />
@@ -217,6 +219,7 @@
     <ClCompile Include="Interpret.cpp" />
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="ListUI.cpp" />
+    <ClCompile Include="OpCode.cpp" />
     <ClCompile Include="OpObj.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Program.cpp" />
@@ -236,6 +239,7 @@
     <ClCompile Include="TRect.cpp" />
     <ClCompile Include="TSegment.cpp" />
     <ClCompile Include="UIData.cpp" />
+    <ClCompile Include="UnlinkedObj.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ChartStudio.rc" />
