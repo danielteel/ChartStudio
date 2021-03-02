@@ -1202,107 +1202,76 @@ void Parser::doIdentStatement() {
 
 void Parser::doStatement(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType) {
 	switch (this->token->type) {
-	case InterpreterTokenType::If:
-	case InterpreterTokenType::While:
-	case InterpreterTokenType::For:
-	case InterpreterTokenType::Loop:
-	case InterpreterTokenType::Break:
-	case InterpreterTokenType::Exit:
-	case InterpreterTokenType::Return:
-	case InterpreterTokenType::Double:
-	case InterpreterTokenType::String:
-	case InterpreterTokenType::Bool:
-	case InterpreterTokenType::Ident:
-	case InterpreterTokenType::LeftCurly:
-	case InterpreterTokenType::LineDelim:
-
+		case InterpreterTokenType::If:
+			this->doIf(breakToBranch, returnToBranch, returnType);
+			break;
+		case InterpreterTokenType::While:
+			this->doWhile(returnToBranch, returnType);
+			break;
+		case InterpreterTokenType::For:
+			this->doFor(returnToBranch, returnType);
+			break;
+		case InterpreterTokenType::Loop:
+			this->doLoop(returnToBranch, returnType);
+			break;
+		case InterpreterTokenType::Break:
+			this->doBreak(breakToBranch);
+			break;
+		case InterpreterTokenType::Exit:
+			this->doExit();
+			break;
+		case InterpreterTokenType::Return:
+			this->doReturn(returnToBranch, returnType);
+			break;
+		case InterpreterTokenType::Double:
+		case InterpreterTokenType::String:
+		case InterpreterTokenType::Bool:
+			this->doDeclare();
+			break;
+		case InterpreterTokenType::Ident:
+			this->doIdentStatement();
+			break;
+		case InterpreterTokenType::LeftCurly:
+			this->doBlock(breakToBranch, returnToBranch, true, false, false, returnType);
+			break;
+		case InterpreterTokenType::LineDelim:
+			this->match(InterpreterTokenType::LineDelim);
+			break;
+		
+		default:
+			this->throwError("unexpected token found " + TokenTypeToString(this->token->type));
 	}
 }
 
-// 	doStatement(breakToBranch, returnToBranch, returnType){
-// 		switch (this.token.type){
-// 			case TokenType.If:
-// 				this.doIf(breakToBranch, returnToBranch, returnType);
-// 				break;
-// 			case TokenType.While:
-// 				this.doWhile(returnToBranch, returnType);
-// 				break;
-// 			case TokenType.For:
-// 				this.doFor(returnToBranch, returnType);
-// 				break;
-// 			case TokenType.Loop:
-// 				this.doLoop(returnToBranch, returnType);
-// 				break;
-// 			case TokenType.Break:
-// 				this.doBreak(breakToBranch);
-// 				break;
+void Parser::doBlock(optional<size_t> breakToBranch, optional<size_t> returnToBranch, bool ifNeedsCurlys, bool couldBeStatement, bool dontPushScope = false, optional<IdentityType> returnType=nullopt) {
+	if (!dontPushScope) this->pushScope();
 
-// 			case TokenType.Exit:
-// 				this.doExit();
-// 				break;
+	bool hasCurlys = false;
 
-// 			case TokenType.Return:
-// 				if (returnToBranch!=null && returnToBranch!=undefined){
-// 					this.doReturn(returnToBranch, returnType);
-// 				}else{
-// 					this.throwError("not allowed to return outside of a function");
-// 				}
-// 				break;
+	if (!ifNeedsCurlys && !this->isNotEnd()) return;
 
-// 			case TokenType.Double:
-// 			case TokenType.String:
-// 			case TokenType.Bool:
-// 				this.doDeclare();
-// 				break;
+	if (ifNeedsCurlys || (this->isNotEnd() && this->token->type==InterpreterTokenType::LeftCurly)) {
+		this->match(InterpreterTokenType::LeftCurly);
+		hasCurlys = true;
+	}
 
-// 			case TokenType.Ident:
-// 				this.doIdentStatement();
-// 				break;
+	while (this->isNotEnd()) {
+		if (this->token->type == InterpreterTokenType::RightCurly) {
+			if (hasCurlys) {
+				this->match(InterpreterTokenType::RightCurly);
+				hasCurlys = false;
+				break;
+			} else {
+				this->throwError("unexpected token found " + TokenTypeToString(this->token->type));
+			}
+		}
 
-// 			case TokenType.LeftCurly:
-// 				this.doBlock(breakToBranch, returnToBranch, true, false, false, returnType);
-// 				break;
+		this->doStatement(breakToBranch, returnToBranch, returnType);
 
-// 			case TokenType.LineDelim:
-// 				this.match(TokenType.LineDelim);
-// 				break;
+		if (couldBeStatement && !hasCurlys) break;
+	}
 
-// 			default:
-// 				this.throwError("Unexpected token in block, "+this.symbolToString(this.token.type));
-// 		}
-// 	}
+	if (hasCurlys) this->throwError("got to end of file without getting closing brace");
 
-// 	doBlock(breakToBranch, returnToBranch, ifNeedsCurlys, couldBeStatment, dontPushScope=false, returnType=null){
-// 		if (!dontPushScope) this.pushScope();
-
-
-// 		let hasCurlys = false;
-
-// 		if (!ifNeedsCurlys && !this.isNotEnd()) return;//End of the program, and we're not expecting a closing '}'
-
-// 		if (ifNeedsCurlys || this.token?.type===TokenType.LeftCurly){
-// 			this.match(TokenType.LeftCurly);
-// 			hasCurlys=true;
-// 		}  
-
-// 		while (this.isNotEnd()){
-// 			if (this.token.type===TokenType.RightCurly){
-// 				if (hasCurlys){
-// 					this.match(TokenType.RightCurly);
-// 					hasCurlys=false;
-// 					break;
-// 				} 
-// 				this.throwError("Unexpected token in block, "+this.symbolToString(this.token.type));
-// 			}
-// 			this.doStatement(breakToBranch, returnToBranch, returnType);
-
-// 			if (couldBeStatment && hasCurlys===false) break;
-// 		}
-
-// 		if (hasCurlys) this.throwError("Got to the end of the file without getting an expected "+this.symbolToString(TokenType.RightCurly));
-
-// 		if (!dontPushScope) this.popScope();
-// 	}
-// }
-
-// module.exports={Parser, IdentityType};
+	if (!dontPushScope) this->popScope();
+}

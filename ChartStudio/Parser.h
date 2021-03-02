@@ -146,6 +146,8 @@ public:
 	void doIdentStatement();
 	void doStatement(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType);
 
+	void doBlock(optional<size_t> breakToBranch, optional<size_t> returnToBranch, bool ifNeedsCurlys, bool couldBeStatement, bool dontPushScope, optional<IdentityType> returnType);
+
 	string errorMsg;
 
 	vector<TokenObj> tokens;

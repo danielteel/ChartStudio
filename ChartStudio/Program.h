@@ -99,7 +99,7 @@ class UnlinkedObj {
 		}
 
 		UnlinkedObj(IdentityType type, size_t scope, size_t index) {
-			this->unlinkedType == UnlinkedType::Variable;
+			this->unlinkedType = UnlinkedType::Variable;
 			this->type = type;
 			this->scope = scope;
 			this->index = index;
