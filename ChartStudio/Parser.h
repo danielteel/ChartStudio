@@ -140,8 +140,11 @@ public:
 	void doExit();
 	void doAssignOrDeclare(bool cantBeFunction);
 	void doDeclare(bool cantBeFunction);
-
 	void doFunction(string name, IdentityType type);
+	void doReturn(optional<size_t> returnToBranch, optional<IdentityType> returnType);
+	void doAssignment(bool wantsDelim);
+	void doIdentStatement();
+	void doStatement(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType);
 
 	string errorMsg;
 

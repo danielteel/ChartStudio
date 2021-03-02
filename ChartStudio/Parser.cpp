@@ -1151,58 +1151,73 @@ void Parser::doFunction(string name, IdentityType type) {
 }
 
 
+void Parser::doReturn(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	if (returnToBranch == nullopt) this->throwError("tried to return outside of function scope");
 
-// 	doReturn(returnToBranch, returnType){
-// 		this.match(TokenType.Return);
+	this->match(InterpreterTokenType::Return);
 
-// 		if (this.token?.type!==TokenType.LineDelim){
-// 			let expressionType=this.doExpression();
-// 			if (this.typesDontMatch(expressionType, returnType)) this.typeMismatch(returnType, expressionType);
-// 		}else{
-// 			this.program.addMov( Program.unlinkedReg("eax"), Program.unlinkedNull() );
-// 		}
+	if (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim) {
+		if (returnType == nullopt) this->throwError("tried to return expression from typeless function");
+		this->assertType(this->doExpression(), *returnType);
+	} else {
+		this->program.addCode(OpCode::mov(UnlinkedObj(RegisterId::eax), UnlinkedObj()));
+	}
+	this->program.addCode(OpCode::jmp(*returnToBranch));
+	this->match(InterpreterTokenType::LineDelim);
+}
 
-// 		this.program.addJmp( returnToBranch );
-// 		this.match(TokenType.LineDelim);
-// 	}
+void Parser::doAssignment(bool wantsDelim = true) {
+	string varName = this->token->sValue;
 
-// 	doAssignment(wantsDelim=true){
-// 		let varName=this.token.value;
+	this->match(InterpreterTokenType::Ident);
+	ScopeObj* identObj = this->getIdentity(varName);
+	if (!identObj) this->throwError("tried to do assignment to undefined '" + varName + "'");
+	this->match(InterpreterTokenType::Assignment);
+	this->assertType(this->doExpression(), identObj->type);
 
-// 		this.match(TokenType.Ident);
-// 		let identObj = this.getIdentity(varName);
-// 		if (!identObj) this.throwError("tried to assign to undefined '"+varName+"'");
+	this->program.addCode(OpCode::mov(UnlinkedObj(identObj->type, identObj->scope, identObj->index), UnlinkedObj(RegisterId::eax)));
+	if (wantsDelim) this->match(InterpreterTokenType::LineDelim);
+}
 
-// 		this.match(TokenType.Assignment);
+void Parser::doIdentStatement() {
+	string identName = this->token->sValue;
 
-// 		let expressionType=this.doExpression();
-// 		if (this.typesDontMatch(expressionType, identObj.type)) this.typeMismatch(identObj.type, expressionType);
+	ScopeObj* identObj = this->getIdentity(identName);
+	if (!identObj) this->throwError("trying to operate on undefined '" + identName + "'");
 
-// 		this.program.addMov( Program.unlinkedVariable(identObj.type, identObj.scope, identObj.index, varName), Program.unlinkedReg("eax") );
+	switch (identObj->type) {
+	case IdentityType::Double:
+	case IdentityType::Bool:
+	case IdentityType::String:
+		this->doAssignment();
+		break;
+	case IdentityType::Function:
+		this->doFuncCall();
+		this->match(InterpreterTokenType::LineDelim);
+		break;
+	default:
+		this->throwError("Invalid identity type "+identName+":"+IdentityTypeToString(identObj->type));
+	}
+}
 
-// 		if (wantsDelim===true) this.match(TokenType.LineDelim);
-// 	}
+void Parser::doStatement(optional<size_t> breakToBranch, optional<size_t> returnToBranch, optional<IdentityType> returnType) {
+	switch (this->token->type) {
+	case InterpreterTokenType::If:
+	case InterpreterTokenType::While:
+	case InterpreterTokenType::For:
+	case InterpreterTokenType::Loop:
+	case InterpreterTokenType::Break:
+	case InterpreterTokenType::Exit:
+	case InterpreterTokenType::Return:
+	case InterpreterTokenType::Double:
+	case InterpreterTokenType::String:
+	case InterpreterTokenType::Bool:
+	case InterpreterTokenType::Ident:
+	case InterpreterTokenType::LeftCurly:
+	case InterpreterTokenType::LineDelim:
 
-// 	doIdentStatement(){
-// 		let identName = this.token.value;
-
-// 		let identObj = this.getIdentity(identName);
-// 		if (!identObj) this.throwError("trying to operate on undefined '"+identName+"'");
-
-// 		switch (identObj.type){
-// 			case IdentityType.Double:
-// 			case IdentityType.Bool:
-// 			case IdentityType.String:
-// 				this.doAssignment();
-// 				break;
-// 			case IdentityType.Function:
-// 				this.doFuncCall();
-// 				this.match(TokenType.LineDelim);
-// 				break;
-// 			default:
-// 				this.throwError("Invalid identity type "+identName+":"+this.symbolToString(identObj.type));
-// 		}
-// 	}
+	}
+}
 
 // 	doStatement(breakToBranch, returnToBranch, returnType){
 // 		switch (this.token.type){
