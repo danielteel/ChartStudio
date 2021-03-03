@@ -63,7 +63,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 	Tokenizer tokenizer;
 	try {
-		tokenizer.tokenize("double a=0.5;\n string b='dude'");
+		tokenizer.tokenize("double a=0.5;\n string b='dude';");
 	} catch (char e) {
 		MessageBox(NULL, tokenizer.errorMsg.c_str(), tokenizer.errorMsg.c_str(), 0);
 	}

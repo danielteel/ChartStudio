@@ -222,6 +222,7 @@ bool Parser::isNotEnd() {
 void Parser::getToken() {
 	if (this->isNotEnd()) {
 		this->tokenIndex++;
+		if (!this->isNotEnd()) return;
 		this->token = &this->tokens[this->tokenIndex];
 
 		while (this->token && this->token->type == InterpreterTokenType::NewLine) {
@@ -1247,6 +1248,9 @@ void Parser::doStatement(optional<size_t> breakToBranch, optional<size_t> return
 			break;
 		case InterpreterTokenType::LineDelim:
 			this->match(InterpreterTokenType::LineDelim);
+			break;
+		case InterpreterTokenType::EndOfFile:
+			this->match(InterpreterTokenType::EndOfFile);
 			break;
 		
 		default:

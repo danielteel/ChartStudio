@@ -14,20 +14,20 @@ enum class OpObjType {
 
 class OpObj {
 public:
-	OpObj(string name, OpObjType type, bool isConstant);
+	OpObj(OpObjType type, bool isConstant);
 	OpObj();
 	virtual ~OpObj();
 
-	string name;
 	OpObjType objType;
 	bool isConstant;
-
 };
 
 class NullObj : public OpObj {
 	public:
-		NullObj() : OpObj("", OpObjType::Null, true) {
-		}
+		NullObj();
+
+		NullObj getCopy();
+		void setTo(OpObj obj);
 
 		virtual ~NullObj() {}
 };
@@ -35,7 +35,7 @@ class NullObj : public OpObj {
 class BoolObj : public OpObj {
 	public:
 		virtual ~BoolObj() {}
-		BoolObj(string name, optional<bool> initialValue, bool isConstant) : OpObj(name, OpObjType::Bool, isConstant) {
+		BoolObj(optional<bool> initialValue, bool isConstant) : OpObj(OpObjType::Bool, isConstant) {
 			this->value = initialValue;
 		}
 
@@ -45,7 +45,7 @@ class BoolObj : public OpObj {
 class NumberObj : public OpObj {
 	public:
 		virtual ~NumberObj() {}
-		NumberObj(string name, optional<double> initialValue, bool isConstant) : OpObj(name, OpObjType::Number, isConstant) {
+		NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, isConstant) {
 			this->value = initialValue;
 		}
 
@@ -55,7 +55,7 @@ class NumberObj : public OpObj {
 class StringObj : public OpObj {
 	public:
 		virtual ~StringObj() {}
-		StringObj(string name, optional<string> initialValue, bool isConstant) : OpObj(name, OpObjType::String, isConstant) {
+		StringObj(optional<string> initialValue, bool isConstant) : OpObj(OpObjType::String, isConstant) {
 			this->value = initialValue;
 		}
 
@@ -67,12 +67,12 @@ class RegisterObj : public OpObj {
 public:
 
 	virtual ~RegisterObj() {}
-	RegisterObj() : OpObj("", OpObjType::Register, false) {
+	RegisterObj() : OpObj(OpObjType::Register, false) {
 
 	}
 
 	NullObj nullObj = NullObj();
-	BoolObj boolObj = BoolObj("", nullopt, false);
-	NumberObj numberObj = NumberObj("", nullopt, false);
-	StringObj stringObj = StringObj("", nullopt, false);
+	BoolObj boolObj = BoolObj(nullopt, false);
+	NumberObj numberObj = NumberObj(nullopt, false);
+	StringObj stringObj = StringObj(nullopt, false);
 };
