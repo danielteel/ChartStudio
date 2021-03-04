@@ -20,59 +20,16 @@ public:
 
 	OpObjType objType;
 	bool isConstant;
+
+	virtual void setTo(OpObj* obj) = 0;
 };
 
-class NullObj : public OpObj {
-	public:
-		NullObj();
-
-		NullObj getCopy();
-		void setTo(OpObj obj);
-
-		virtual ~NullObj() {}
-};
-
-class BoolObj : public OpObj {
-	public:
-		virtual ~BoolObj() {}
-		BoolObj(optional<bool> initialValue, bool isConstant) : OpObj(OpObjType::Bool, isConstant) {
-			this->value = initialValue;
-		}
-
-		optional<bool> value;
-};
-
-class NumberObj : public OpObj {
-	public:
-		virtual ~NumberObj() {}
-		NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, isConstant) {
-			this->value = initialValue;
-		}
-
-		optional<double> value;
-};
-
-class StringObj : public OpObj {
-	public:
-		virtual ~StringObj() {}
-		StringObj(optional<string> initialValue, bool isConstant) : OpObj(OpObjType::String, isConstant) {
-			this->value = initialValue;
-		}
-
-		optional<string> value;
-};
-
-
-class RegisterObj : public OpObj {
+class NumberObj : public OpObj{
 public:
+	NumberObj(optional<double> initialValue, bool isConstant);
+	virtual ~NumberObj();
 
-	virtual ~RegisterObj() {}
-	RegisterObj() : OpObj(OpObjType::Register, false) {
+	optional<double> value;
 
-	}
-
-	NullObj nullObj = NullObj();
-	BoolObj boolObj = BoolObj(nullopt, false);
-	NumberObj numberObj = NumberObj(nullopt, false);
-	StringObj stringObj = StringObj(nullopt, false);
+	void setTo(OpObj* obj);
 };

@@ -14,20 +14,6 @@ OpObj::OpObj(OpObjType type, bool isConstant) {
 OpObj::~OpObj() {
 }
 
-NullObj::NullObj() : OpObj(OpObjType::Null, true) {
-}
-
-NullObj NullObj::getCopy() {
-	return *this;
-}
-
-void NullObj::setTo(OpObj* obj) {
-	throw "tried to write to null";
-}
-
-bool NullObj::equalTo(OpObj* obj) {
-
-}
 
 // class NullObj extends OpObj {
 // 	constructor(){
@@ -387,3 +373,22 @@ bool NullObj::equalTo(OpObj* obj) {
 // }
 
 // module.exports={OpObjType, OpObj, NullObj, RegisterObj, StringObj, NumberObj, BoolObj};
+
+NumberObj::NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, isConstant) {
+	this->value = initialValue;
+}
+
+NumberObj::~NumberObj() {
+}
+
+void NumberObj::setTo(OpObj * obj) {
+	if (isConstant) throw "tried to write to constant OpObj";
+	if (!obj) throw "null pointer passed to setTo in OpObj";
+	if (obj->objType == OpObjType::Null) {
+		this->value = nullopt;
+	} else if (obj->objType == OpObjType::Number) {
+		this->value = static_cast<NumberObj*>(obj)->value;
+	} else {
+		throw "tried to set number obj to other than null/number type";
+	}
+}
