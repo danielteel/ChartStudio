@@ -14,11 +14,12 @@ enum class OpObjType {
 
 class OpObj {
 public:
-	OpObj(OpObjType type, bool isConstant);
+	OpObj(OpObjType type, OpObjType valueType, bool isConstant);
 	OpObj();
 	virtual ~OpObj();
 
 	OpObjType objType;
+	OpObjType valueType;
 	bool isConstant;
 
 	virtual void setTo(OpObj* obj) = 0;
@@ -32,4 +33,10 @@ public:
 	optional<double> value;
 
 	void setTo(OpObj* obj);
+	bool equalTo(OpObj * obj);
+	bool notEqualTo(OpObj * obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
 };

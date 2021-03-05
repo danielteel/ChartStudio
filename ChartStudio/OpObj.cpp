@@ -1,15 +1,21 @@
 #include "stdafx.h"
 #include "OpObj.h"
 
+bool isAboutEquals(double x, double y) {
+	if (fabs(x - y) < 0.0000001)
+		return true; //they are same
+	return false; //they are not same
+}
+
+OpObj::OpObj(OpObjType type, OpObjType valueType, bool isConstant) {
+	this->objType = type;
+	this->valueType = valueType;
+	this->isConstant = isConstant;
+}
 
 OpObj::OpObj() {
 }
 
-
-OpObj::OpObj(OpObjType type, bool isConstant) {
-	this->objType = type;
-	this->isConstant = isConstant;
-}
 
 OpObj::~OpObj() {
 }
@@ -374,7 +380,7 @@ OpObj::~OpObj() {
 
 // module.exports={OpObjType, OpObj, NullObj, RegisterObj, StringObj, NumberObj, BoolObj};
 
-NumberObj::NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, isConstant) {
+NumberObj::NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, OpObjType::Number, isConstant) {
 	this->value = initialValue;
 }
 
@@ -382,13 +388,82 @@ NumberObj::~NumberObj() {
 }
 
 void NumberObj::setTo(OpObj * obj) {
-	if (isConstant) throw "tried to write to constant OpObj";
-	if (!obj) throw "null pointer passed to setTo in OpObj";
-	if (obj->objType == OpObjType::Null) {
+	if (isConstant) throw "tried to write to constant";
+	if (!obj) throw "tried to setTo with null pointer";
+	if (obj->objType == OpObjType::Null || (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Null)) {
 		this->value = nullopt;
-	} else if (obj->objType == OpObjType::Number) {
-		this->value = static_cast<NumberObj*>(obj)->value;
-	} else {
-		throw "tried to set number obj to other than null/number type";
+		return;
 	}
+
+	NumberObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register && obj->valueType==OpObjType::Number) {
+		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+	}
+	if (obj->objType == OpObjType::Number) {
+		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (numObj) {
+		this->value = numObj->value;
+	}
+	throw "tried to set object to incompatible object";
+}
+
+bool NumberObj::equalTo(OpObj* obj) {
+	if (!obj) throw "tried to compare object to null pointer";
+	if (obj->objType == OpObjType::Null || (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Null)) {
+		if (this->value == nullopt) {
+			return true;
+		}
+		return false;
+	}
+
+	NumberObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
+		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+	}
+	if (obj->objType == OpObjType::Number) {
+		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (numObj) {
+		if (this->value == nullopt || numObj->value == nullopt) {
+			return this->value == numObj->value;
+		}
+		return isAboutEquals(*this->value, *numObj->value);
+	}
+	throw "tried to compare object to incompatible object";
+}
+
+bool NumberObj::notEqualTo(OpObj* obj) {
+	return !this->equalTo(obj);
+}
+
+bool NumberObj::greaterThan(OpObj* obj) {
+	if (!obj) throw "tried to compare object to null pointer";
+
+	NumberObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
+		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+	}
+	if (obj->objType == OpObjType::Number) {
+		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (numObj) {
+		if (this->value == nullopt || numObj->value == nullopt) {
+			throw "tried to do size comparison with null";
+		}
+		return *this->value > *numObj->value;
+	}
+	throw "tried to compare object to incompatible object";
+}
+
+bool NumberObj::greaterOrEqualsThan(OpObj* obj) {
+	return this->greaterThan(obj) || this->equalTo(obj);
+}
+
+bool NumberObj::smallerThan(OpObj* obj) {
+	return !this->greaterOrEqualsThan(obj);
+}
+
+bool NumberObj::smallerOrEqualsThan(OpObj* obj) {
+	return !this->greaterThan(obj);
 }
