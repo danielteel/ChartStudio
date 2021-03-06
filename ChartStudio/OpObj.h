@@ -23,6 +23,25 @@ public:
 	bool isConstant;
 
 	virtual void setTo(OpObj* obj) = 0;
+
+	virtual bool equalTo(OpObj * obj) = 0;
+	virtual bool notEqualTo(OpObj * obj) = 0;
+	virtual bool greaterThan(OpObj * obj) = 0;
+	virtual bool greaterOrEqualsThan(OpObj * obj) = 0;
+	virtual bool smallerThan(OpObj * obj) = 0;
+	virtual bool smallerOrEqualsThan(OpObj * obj) = 0;
+};
+
+class StringObj :public OpObj {
+public:
+	StringObj(optional<string> initialValue, bool isConstant);
+	virtual ~StringObj();
+
+	optional<string> value;
+
+	void setTo(OpObj* obj);
+	bool equalTo(OpObj* obj);
+	bool notEqualTo(OpObj* obj);
 };
 
 class NumberObj : public OpObj{

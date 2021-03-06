@@ -232,89 +232,6 @@ OpObj::~OpObj() {
 // 	}
 // }
 
-// class NumberObj extends OpObj {
-// 	constructor(name, initialVal=null, isConstant=false){
-// 		super(name, OpObjType.num,  initialVal===null?null:Number(initialVal), isConstant);
-// 	}
-
-// 	getCopy(){
-// 		return new NumberObj(this.name, this._value, this._isConstant);
-// 	}
-
-// 	setTo(obj){
-// 		if (this._isConstant) return "Tried to write to constant number";
-// 		if (obj instanceof OpObj === false) return "Tried to set number to invalid type";
-
-// 		let type=obj._objType;
-// 		if (type===OpObjType.register) type=obj._curValType;
-
-// 		switch (type){
-// 			case OpObjType.null:
-// 				this._value=null;
-// 				break;
-// 			case OpObjType.bool:
-// 				this._value=obj._value===null ? null : Number(obj._value);
-// 				break;
-// 			case OpObjType.num:
-// 				this._value=obj._value;
-// 				break;
-// 			default:
-// 				return "Tried to set number to invalid type";
-// 		}
-// 		if (!isFinite(this._value)) this._value=null;
-// 		return null;
-// 	}
-// 	eqaulTo(obj){
-// 		let type=obj._objType;
-// 		if (type===OpObjType.register) type=obj._curValType;
-
-// 		if (obj._value===null && this._value!==null) return false;
-// 		if (this._value===null && obj._value!==null) return false;
-// 		switch (type){
-// 			case OpObjType.null:
-// 				return this._value===null;
-// 			case OpObjType.bool:
-// 				return this._value===Number(obj._value);
-// 			case OpObjType.num:
-// 				return Utils.isAboutEquals(this._value, obj._value);
-// 			default:
-// 				throw new Error("Tried to do comparison to invalid type");
-// 		}
-// 	}    
-// 	notEqualTo(obj){
-// 		return !this.eqaulTo(obj);
-// 	}
-// 	smallerThan(obj){
-// 		let type=obj._objType;
-// 		if (type===OpObjType.register) type=obj._curValType;
-// 		switch (type){
-// 			case OpObjType.bool:
-// 				return this._value<Number(obj._value);
-// 			case OpObjType.num:
-// 				return this._value<obj._value;
-// 			default:
-// 				throw new Error("Tried to do comparison to invalid type");
-// 		}
-// 	}
-// 	greaterThan(obj){
-// 		let type=obj._objType;
-// 		if (type===OpObjType.register) type=obj._curValType;
-// 		switch (type){
-// 			case OpObjType.bool:
-// 				return this._value>Number(obj._value);
-// 			case OpObjType.num:
-// 				return this._value>obj._value;
-// 			default:
-// 				throw new Error("Tried to do comparison to invalid type");
-// 		}
-// 	}
-// 	smallerOrEqualThan(obj){
-// 		return this.smallerThan(obj)||this.eqaulTo(obj);
-// 	}
-// 	greaterOrEqualThan(obj){
-// 		return this.greaterThan(obj)||this.eqaulTo(obj);
-// 	}
-// }
 
 // class StringObj extends OpObj {
 // 	constructor(name, initialVal="", isConstant=false){
@@ -466,4 +383,61 @@ bool NumberObj::smallerThan(OpObj* obj) {
 
 bool NumberObj::smallerOrEqualsThan(OpObj* obj) {
 	return !this->greaterThan(obj);
+}
+
+StringObj::StringObj(optional<string> initialValue, bool isConstant) : OpObj(OpObjType::String, OpObjType::String, isConstant) {
+	this->value = initialValue;
+}
+
+StringObj::~StringObj() {
+}
+
+void StringObj::setTo(OpObj * obj) {
+	if (isConstant) throw "tried to write to constant";
+	if (!obj) throw "tried to setTo with null pointer";
+	if (obj->objType == OpObjType::Null || (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Null)) {
+		this->value = nullopt;
+		return;
+	}
+
+	StringObj* strObj = nullptr;
+	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::String) {
+		strObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+	}
+	if (obj->objType == OpObjType::String) {
+		strObj = static_cast<StringObj*>(obj);
+	}
+	if (strObj) {
+		this->value = strObj->value;
+	}
+	throw "tried to set object to incompatible object";
+}
+
+bool StringObj::equalTo(OpObj * obj) {
+	if (!obj) throw "tried to compare object to null pointer";
+	if (obj->objType == OpObjType::Null || (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Null)) {
+		if (this->value == nullopt) {
+			return true;
+		}
+		return false;
+	}
+
+	StringObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::String) {
+		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+	}
+	if (obj->objType == OpObjType::String) {
+		numObj = static_cast<StringObj*>(obj);
+	}
+	if (numObj) {
+		if (this->value == nullopt || numObj->value == nullopt) {
+			return this->value == numObj->value;
+		}
+		return *this->value==*numObj->value;
+	}
+	throw "tried to compare object to incompatible object";
+}
+
+bool StringObj::notEqualTo(OpObj * obj) {
+	return !this->equalTo(obj);
 }
