@@ -42,14 +42,67 @@ public:
 	void setTo(OpObj* obj);
 	bool equalTo(OpObj* obj);
 	bool notEqualTo(OpObj* obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
 };
 
-class NumberObj : public OpObj{
+class NumberObj : public OpObj {
 public:
 	NumberObj(optional<double> initialValue, bool isConstant);
 	virtual ~NumberObj();
 
 	optional<double> value;
+
+	void setTo(OpObj* obj);
+	bool equalTo(OpObj * obj);
+	bool notEqualTo(OpObj * obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
+};
+
+class BoolObj : public OpObj {
+public:
+	BoolObj(optional<bool> initialValue, bool isConstant);
+	virtual ~BoolObj();
+
+	optional<double> value;
+
+	void setTo(OpObj* obj);
+	bool equalTo(OpObj * obj);
+	bool notEqualTo(OpObj * obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
+};
+
+class NullObj : public OpObj {
+public:
+	NullObj();
+	virtual ~NullObj();
+
+	void setTo(OpObj* obj);
+	bool equalTo(OpObj * obj);
+	bool notEqualTo(OpObj * obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
+};
+
+class RegisterObj : public OpObj {
+public:
+	RegisterObj();
+	virtual ~RegisterObj();
+
+	BoolObj boolObj;
+	StringObj stringObj;
+	NumberObj numObj;
+	NullObj nullObj;
 
 	void setTo(OpObj* obj);
 	bool equalTo(OpObj * obj);
