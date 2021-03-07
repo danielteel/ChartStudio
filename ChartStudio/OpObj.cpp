@@ -82,77 +82,12 @@ bool NullObj::smallerOrEqualsThan(OpObj * obj) {
 	throw "attempted lessOrEqualsThan comparison on null object";
 }
 
-// class RegisterObj extends OpObj {
-// 	constructor(name){
-// 		super(name, OpObjType.register, null, false);
-// 		this._curValType=OpObjType.num;
-// 		this.stringObj=new StringObj(null, null, false);
-// 		this.boolObj=new BoolObj(null, null, false);
-// 		this.numberObj=new NumberObj(null, null, false);
-// 		this.nullObj = new NullObj();
-// 	}
-
-// 	getCopy(asNative){
-// 		if (asNative){
-// 			return this.getNativeObj();
-// 		}
-// 		let newObj=new RegisterObj(this.name+"Copy");
-// 		newObj._curValType=this._curValType;
-// 		newObj._value=this._value;
-// 		newObj._isConstant=this._isConstant;
-// 		return newObj;
-// 	}
-
-// 	setTo(obj){
-// 		if (obj instanceof OpObj === false) return "Tried to set register to invalid type";
-
-// 		if (obj._objType===OpObjType.register){
-// 			this._curValType=obj._curValType;
-// 		}else{
-// 			this._curValType=obj._objType;
-// 		}
-// 		this._value=obj._value;
-// 		return null;
-// 	}
-
-// 	getNativeObj(){
-// 		switch (this._curValType){
-// 		case OpObjType.null:
-// 			return this.nullObj;
-// 		case OpObjType.string:
-// 			this.stringObj._value=this._value;
-// 			return this.stringObj;
-// 		case OpObjType.bool:
-// 			this.boolObj._value=this._value;
-// 			return this.boolObj;
-// 		case OpObjType.num:
-// 			this.numberObj._value=this._value;
-// 			return this.numberObj;
-// 		}
-// 	}
-
-// 	eqaulTo(obj){
-// 		return this.getNativeObj().eqaulTo(obj);
-// 	}
-// 	notEqualTo(obj){
-// 		return this.getNativeObj().notEqualTo(obj);
-// 	}
-// 	smallerThan(obj){
-// 		return this.getNativeObj().smallerThan(obj);
-// 	}
-// 	greaterThan(obj){
-// 		return this.getNativeObj().greaterThan(obj);
-// 	}
-// 	smallerOrEqualThan(obj){
-// 		return this.getNativeObj().smallerOrEqualThan(obj);
-// 	}
-// 	greaterOrEqualThan(obj){
-// 		return this.getNativeObj().greaterOrEqualThan(obj);
-// 	}
-// }
 
 
 
+NumberObj::NumberObj() : OpObj(OpObjType::Number, OpObjType::Number, false) {
+	this->value = nullopt;
+}
 NumberObj::NumberObj(optional<double> initialValue, bool isConstant) : OpObj(OpObjType::Number, OpObjType::Number, isConstant) {
 	this->value = initialValue;
 }
@@ -243,6 +178,9 @@ bool NumberObj::smallerOrEqualsThan(OpObj* obj) {
 	return !this->greaterThan(obj);
 }
 
+StringObj::StringObj() : OpObj(OpObjType::String, OpObjType::String, false) {
+	this->value = nullopt;
+}
 StringObj::StringObj(optional<string> initialValue, bool isConstant) : OpObj(OpObjType::String, OpObjType::String, isConstant) {
 	this->value = initialValue;
 }
@@ -319,6 +257,9 @@ bool StringObj::smallerOrEqualsThan(OpObj * obj) {
 }
 
 
+BoolObj::BoolObj() : OpObj(OpObjType::Bool, OpObjType::Bool, false) {
+	this->value = nullopt;
+}
 
 BoolObj::BoolObj(optional<bool> initialValue, bool isConstant) : OpObj(OpObjType::Bool, OpObjType::Bool, isConstant) {
 	this->value = initialValue;
@@ -396,6 +337,12 @@ bool BoolObj::smallerOrEqualsThan(OpObj * obj) {
 }
 
 
+RegisterObj::RegisterObj() {
+}
+
+RegisterObj::~RegisterObj() {
+}
+
 void RegisterObj::setTo(OpObj * obj) {
 	if (!obj) throw "tried to setTo with null pointer";
 
@@ -415,5 +362,62 @@ void RegisterObj::setTo(OpObj * obj) {
 		this->stringObj = *static_cast<StringObj*>(obj);
 	} else if (obj->objType == OpObjType::Number) {
 		this->numObj = *static_cast<NumberObj*>(obj);
+	} else {
+		throw "tried to set register to unknown data type";
 	}
+}
+
+BoolObj RegisterObj::getBoolObj() {
+	return this->boolObj;
+}
+
+StringObj RegisterObj::getStringObj() {
+	return this->stringObj;
+}
+
+NumberObj RegisterObj::getNumberObj() {
+	return this->numObj;
+}
+
+NullObj RegisterObj::getNullObj() {
+	return this->nullObj;
+}
+
+OpObj* RegisterObj::getNativeObj() {
+	switch (this->valueType) {
+	case OpObjType::Null:
+		return &this->nullObj;
+	case OpObjType::Bool:
+		return &this->boolObj;
+	case OpObjType::String:
+		return &this->stringObj;
+	case OpObjType::Number:
+		return &this->numObj;
+	default:
+		throw "register has unknown value type";
+	}
+}
+
+bool RegisterObj::equalTo(OpObj * obj) {
+	return this->getNativeObj()->equalTo(obj);
+}
+
+bool RegisterObj::notEqualTo(OpObj * obj) {
+	return this->getNativeObj()->notEqualTo(obj);
+}
+
+bool RegisterObj::greaterThan(OpObj * obj) {
+	return this->getNativeObj()->greaterThan(obj);
+}
+
+bool RegisterObj::greaterOrEqualsThan(OpObj * obj) {
+	return this->getNativeObj()->greaterOrEqualsThan(obj);
+}
+
+bool RegisterObj::smallerThan(OpObj * obj) {
+	return this->getNativeObj()->smallerThan(obj);
+}
+
+bool RegisterObj::smallerOrEqualsThan(OpObj * obj) {
+	return this->getNativeObj()->smallerOrEqualsThan(obj);
 }

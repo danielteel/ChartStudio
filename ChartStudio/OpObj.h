@@ -34,6 +34,7 @@ public:
 
 class StringObj :public OpObj {
 public:
+	StringObj();
 	StringObj(optional<string> initialValue, bool isConstant);
 	virtual ~StringObj();
 
@@ -50,6 +51,7 @@ public:
 
 class NumberObj : public OpObj {
 public:
+	NumberObj();
 	NumberObj(optional<double> initialValue, bool isConstant);
 	virtual ~NumberObj();
 
@@ -66,6 +68,7 @@ public:
 
 class BoolObj : public OpObj {
 public:
+	BoolObj();
 	BoolObj(optional<bool> initialValue, bool isConstant);
 	virtual ~BoolObj();
 
@@ -105,6 +108,11 @@ public:
 	NullObj nullObj;
 
 	void setTo(OpObj* obj);
+	BoolObj getBoolObj();
+	StringObj getStringObj();
+	NumberObj getNumberObj();
+	NullObj getNullObj();
+	OpObj* getNativeObj();
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);
 	bool greaterThan(OpObj * obj);
