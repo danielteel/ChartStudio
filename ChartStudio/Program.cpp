@@ -41,72 +41,13 @@ void Program::insertCode(vector<OpCode> opCodes, size_t afterThis) {
 	}
 }
 
-
-void 
-
-
-// class Program {
-// 	static regSymbols = {eax: Symbol("eax"), ebx: Symbol("ebx"), ecx: Symbol("ecx")};
-// 	static unlinkedReg(registerName){
-// 		switch (registerName.trim().toLowerCase()){
-// 				case "eax":	return {type: UnlinkedType.register, register: Program.regSymbols.eax, debugName:"eax"}
-// 				case "ebx":	return {type: UnlinkedType.register, register: Program.regSymbols.ebx, debugName:"ebx"}
-// 				case "ecx":	return {type: UnlinkedType.register, register: Program.regSymbols.ecx, debugName:"ecx"}
-// 		}
-// 		return null;
-// 	}
-// 	static unlinkedVariable(type, scope, index, debugName=null)	{ return {type: UnlinkedType.variable,	identType: type,	scope, index, debugName}; }
-// 	static unlinkedLiteral(type, value)							{ return {type: UnlinkedType.literal,	literalType: type,	value}; }
-// 	static unlinkedNull()										{ return {type: UnlinkedType.null}; }
-
-// 	static CodeState = {
-// 		BUILDING:	Symbol("Building"),
-// 		OPTIMIZED:	Symbol("Optimized"),
-// 		READY:		Symbol("Ready"),
-// 	}
-
-// 	constructor(){
-// 		this.errorObj=null;
-// 		this.code=[];
-
-// 		this.codeState=Program.CodeState.BUILDING;
-
-// 		this.debugCodeLine=1;
-
-// 		this.eax=new RegisterObj("eax");
-// 		this.ebx=new RegisterObj("ebx");
-// 		this.ecx=new RegisterObj("ecx");
-// 		this.true=new BoolObj("true", true, true);
-// 		this.false=new BoolObj("false", false, true);
-// 		this.zero=new NumberObj("zero",0,true);
-// 		this.null=new NullObj();
-// 	}
-
-
-// 	unlinkedsEqual(obj, obj1){
-// 		if (obj.type!==obj1.type) return false;
-
-// 		if (obj.type===UnlinkedType.register){
-// 			if (obj.register!==obj1.register) return false;
-// 			return true;
-// 		} else if (obj.type=== UnlinkedType.variable){
-// 			if (obj.scope!==obj1.scope || obj.index!==obj1.index) return false;
-// 			return true;
-// 		} else if (obj.type===UnlinkedType.literal){
-// 			if (obj.value!==obj1.value) return false;
-// 			return true;
-// 		}
-
-// 		return true;//must be a null literal			
-// 	}
-
+void Program::link() {
+	if (this->codeState == CodeState::ready) return;
+	
+}
 
 // 	link(optimize){
 // 		if (this.codeState===Program.CodeState.READY) return null;
-// 		if (this.codeState===Program.CodeState.BUILDING && optimize){
-// 			this.optimize();
-// 			if (this.codeState!==Program.CodeState.OPTIMIZED) this.otherError("error optimizing");
-// 		}
 
 // 		const labelMap = new Map();
 // 		for (let i=0;i<this.code.length;i++){//Make a map of all the labels and there indexes
