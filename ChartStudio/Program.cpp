@@ -1,7 +1,10 @@
+#include <map>
 #include "stdafx.h"
 #include "Program.h"
 #include "OpObj.h"
 #include "OpCode.h"
+
+using namespace std;
 
 Program::Program() {
 	this->errorMsg = "";
@@ -44,6 +47,33 @@ void Program::insertCode(vector<OpCode> opCodes, size_t afterThis) {
 void Program::link() {
 	if (this->codeState == CodeState::ready) return;
 	
+	map<size_t, size_t> labelMap;
+
+	for (size_t i = 0; i < this->code.size(); i++) {
+		if (this->code[i].type == OpCodeType::label) {
+			if (labelMap.find(this->code[i].id)!=labelMap.end()) {
+				throw "link error duplicate label define";
+			}
+
+			labelMap.insert(std::pair<size_t, size_t>(this->code[i].id, i));
+		}
+	}
+
+	for (size_t i=0;i<this->code.size();i++){//Now go through and update the id's of all the codes that can/will jump
+ 			switch (this->code[i].type){
+				case OpCodeType::jmp:
+ 				case OpCodeType::je:
+ 				case OpCodeType::jne:
+ 				case OpCodeType::ja:
+ 				case OpCodeType::jae:
+ 				case OpCodeType::jb:
+ 				case OpCodeType::jbe:
+ 				case OpCodeType::call:
+ 					this->code[i].id=labelMap[this->code[i].id];
+ 					break;
+ 			}
+ 	}
+	this->codeState = CodeState::ready;
 }
 
 // 	link(optimize){
