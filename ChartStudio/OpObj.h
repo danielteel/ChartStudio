@@ -108,10 +108,6 @@ public:
 	NullObj nullObj;
 
 	void setTo(OpObj* obj);
-	BoolObj getBoolObj();
-	StringObj getStringObj();
-	NumberObj getNumberObj();
-	NullObj getNullObj();
 	OpObj* getNativeObj();
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);

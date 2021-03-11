@@ -38,21 +38,21 @@ bool NullObj::equalTo(OpObj* obj) {
 		return true;
 	case OpObjType::Bool:
 		if (obj->objType == OpObjType::Register) {
-			if (static_cast<RegisterObj*>(obj)->getBoolObj().value == nullopt) return true;
+			if (static_cast<RegisterObj*>(obj)->boolObj.value == nullopt) return true;
 		} else {
 			if (static_cast<BoolObj*>(obj)->value == nullopt) return true;
 		}
 		break;
 	case OpObjType::Number:
 		if (obj->objType == OpObjType::Register) {
-			if (static_cast<RegisterObj*>(obj)->getNumberObj().value == nullopt) return true;
+			if (static_cast<RegisterObj*>(obj)->numObj.value == nullopt) return true;
 		} else {
 			if (static_cast<NumberObj*>(obj)->value == nullopt) return true;
 		}
 		break;
 	case OpObjType::String:
 		if (obj->objType == OpObjType::Register) {
-			if (static_cast<RegisterObj*>(obj)->getStringObj().value == nullopt) return true;
+			if (static_cast<RegisterObj*>(obj)->stringObj.value == nullopt) return true;
 		} else {
 			if (static_cast<StringObj*>(obj)->value == nullopt) return true;
 		}
@@ -105,7 +105,7 @@ void NumberObj::setTo(OpObj * obj) {
 
 	NumberObj* numObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType==OpObjType::Number) {
-		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+		numObj = &static_cast<RegisterObj*>(obj)->numObj;
 	}
 	if (obj->objType == OpObjType::Number) {
 		numObj = static_cast<NumberObj*>(obj);
@@ -127,7 +127,7 @@ bool NumberObj::equalTo(OpObj* obj) {
 
 	NumberObj* numObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
-		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+		numObj = &static_cast<RegisterObj*>(obj)->numObj;
 	}
 	if (obj->objType == OpObjType::Number) {
 		numObj = static_cast<NumberObj*>(obj);
@@ -152,7 +152,7 @@ bool NumberObj::greaterThan(OpObj* obj) {
 
 	NumberObj* numObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
-		numObj = &static_cast<RegisterObj*>(obj)->getNumberObj();
+		numObj = &static_cast<RegisterObj*>(obj)->numObj;
 	}
 	if (obj->objType == OpObjType::Number) {
 		numObj = static_cast<NumberObj*>(obj);
@@ -198,7 +198,7 @@ void StringObj::setTo(OpObj * obj) {
 
 	StringObj* strObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::String) {
-		strObj = &static_cast<RegisterObj*>(obj)->getStringObj();
+		strObj = &static_cast<RegisterObj*>(obj)->stringObj;
 	}
 	if (obj->objType == OpObjType::String) {
 		strObj = static_cast<StringObj*>(obj);
@@ -220,7 +220,7 @@ bool StringObj::equalTo(OpObj * obj) {
 
 	StringObj* strObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::String) {
-		strObj = &static_cast<RegisterObj*>(obj)->getStringObj();
+		strObj = &static_cast<RegisterObj*>(obj)->stringObj;
 	}
 	if (obj->objType == OpObjType::String) {
 		strObj = static_cast<StringObj*>(obj);
@@ -278,7 +278,7 @@ void BoolObj::setTo(OpObj * obj) {
 
 	BoolObj* boolObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Bool) {
-		boolObj = &static_cast<RegisterObj*>(obj)->getBoolObj();
+		boolObj = &static_cast<RegisterObj*>(obj)->boolObj;
 	}
 	if (obj->objType == OpObjType::Bool) {
 		boolObj = static_cast<BoolObj*>(obj);
@@ -300,7 +300,7 @@ bool BoolObj::equalTo(OpObj* obj) {
 
 	BoolObj* boolObj = nullptr;
 	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Bool) {
-		boolObj = &static_cast<RegisterObj*>(obj)->getBoolObj();
+		boolObj = &static_cast<RegisterObj*>(obj)->boolObj;
 	}
 	if (obj->objType == OpObjType::Bool) {
 		boolObj = static_cast<BoolObj*>(obj);
@@ -367,21 +367,6 @@ void RegisterObj::setTo(OpObj * obj) {
 	}
 }
 
-BoolObj RegisterObj::getBoolObj() {
-	return this->boolObj;
-}
-
-StringObj RegisterObj::getStringObj() {
-	return this->stringObj;
-}
-
-NumberObj RegisterObj::getNumberObj() {
-	return this->numObj;
-}
-
-NullObj RegisterObj::getNullObj() {
-	return this->nullObj;
-}
 
 OpObj* RegisterObj::getNativeObj() {
 	switch (this->valueType) {

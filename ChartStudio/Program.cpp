@@ -43,7 +43,7 @@ void Program::insertCode(vector<OpCode> opCodes, size_t afterThis) {
 		this->insertCode(opCodes[i-1], afterThis);
 	}
 }
-
+/*
 void Program::link() {
 	if (this->codeState == CodeState::ready) return;
 	
@@ -76,82 +76,83 @@ void Program::link() {
 	this->codeState = CodeState::ready;
 }
 
-// 	link(optimize){
-// 		if (this.codeState===Program.CodeState.READY) return null;
+OpObj* Program::linkedObject(UnlinkedObj* obj, vector<vector<vector<OpObj*>>>& scopes, bool* needToFree) {
+	if (needToFree) needToFree = false;
 
-// 		const labelMap = new Map();
-// 		for (let i=0;i<this.code.length;i++){//Make a map of all the labels and there indexes
-// 			if (this.code[i].type===OpCode.label){
-// 				if (labelMap.has(this.code[i].id)){
-// 					this.otherError("error linking, "+this.code[i].id+" was already defined")
-// 				}
-// 				labelMap.set(this.code[i].id, i);
+	switch (obj->unlinkedType) {
+		case UnlinkedType::Register:
+			switch (obj->registerId) {
+				case RegisterId::eax:
+					return &this->eax;
+				case RegisterId::ebx:
+					return &this->ebx;
+				case RegisterId::ecx:
+					return &this->ecx;
+			}
+			throw "unknown register";
 
-// 				this.code.splice(i,1);
-// 				i--;
-// 			}
-// 		}
+		case UnlinkedType::Variable:
+			return &(scopes[obj->scope][scopes[obj->scope].size() - 1][obj->index]);
 
-// 		for (let i=0;i<this.code.length;i++){//Now go through and update the id's of all the codes that can/will jump
-// 			switch (this.code[i].type){
-// 				case OpCode.jmp:
-// 				case OpCode.je:
-// 				case OpCode.jne:
-// 				case OpCode.ja:
-// 				case OpCode.jae:
-// 				case OpCode.jb:
-// 				case OpCode.jbe:
-// 				case OpCode.call:
-// 					this.code[i].id=labelMap.get(this.code[i].id);
-// 					break;
-// 			}
-// 		}
-// 		this.codeState=Program.CodeState.READY;
-// 	}
+		case UnlinkedType::Literal:
+			switch (obj->type) {
+				case IdentityType::Bool:
+					if (obj->bValue) return &this->trueObj;
+					return &this->falseObj;
+				case IdentityType::String:
+					if (needToFree) *needToFree = true;
+					return new StringObj(obj->sValue, true);
+				case IdentityType::Double:
+					if (needToFree) *needToFree = true;
+					return new NumberObj(obj->dValue, true);
+				case IdentityType::Null:
+					return &this->nullObj;
+				default:
+					throw "unknown unlinked object literal type";
+			}
 
-// 	linkedObject(obj, scopes){
-// 		switch (obj.type){
-// 			case UnlinkedType.register:
-// 				switch (obj.register){
-// 					case Program.regSymbols.eax:
-// 						return this.eax;
-// 					case Program.regSymbols.ebx:
-// 						return this.ebx;
-// 					case Program.regSymbols.ecx:
-// 						return this.ecx;
-// 				}
-// 				this.executionError("unknown register");
+		case UnlinkedType::Null:
+			return &this->nullObj;
 
-// 			case UnlinkedType.variable:
-// 				return scopes[obj.scope][scopes[obj.scope].length-1][obj.index];
+		default:
+			throw "unknown unlinked object type";
+	}
+}
 
-// 			case UnlinkedType.literal:
-// 				switch (obj.literalType){
-// 					case IdentityType.Bool:
-// 						if (obj.value===true) return this.true;
-// 						return this.false;
-// 					case IdentityType.Double:
-// 						return new NumberObj(null, obj.value, true);
-// 					case IdentityType.String:
-// 						return new StringObj(null, obj.value, true);
-// 					default:
-// 						this.executionError("unknown unlinked literal type");
-// 				}
 
-// 			case UnlinkedType.null:
-// 				return this.null;
-// 		}		
-// 		this.executionError("unknown unlinked object type");
-// 	}
+OpObj* Program::execute(vector<OpObj*> externals) {
+	size_t eip = 0;
+	try {
+		if (this->codeState != CodeState::ready) {
+			this->link();
+		}
+		if (this->codeState != CodeState::ready) throw "failed to link code";
 
-// 	otherError(message){
-// 		throw Error("Pre-execution error: "+message);
-// 	}
+		this->debugCodeLine = 1;
+		bool notDone = true;
 
-// 	executionError(message){
-// 		throw Error(message);
-// 	}
+		vector<vector<vector<OpObj*>>> scopes;
+		scopes.push_back({});
+		scopes[0].push_back({});
+		(scopes[0])[0] = externals;
 
+		vector<size_t> callStack;
+		vector<OpObj*> stack;
+
+		bool flag_e = false;
+		bool flag_a = false;
+		bool flag_b = false;
+
+		while (notDone && eip < this->code.size()) {
+			OpCode op = this->code[eip];
+			OpObj* objs[3] = { nullptr, nullptr, nullptr };
+			bool freeObjs[3] = { false, false, false };
+
+		}
+	}
+
+
+}*/
 // 	execute(externals){
 // 		let eip = 0;
 // 		let trace=[];
