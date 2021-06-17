@@ -393,7 +393,7 @@ void ProjectContainer::newTable() {
 	newChartObj(new CTable("new table", true));
 }
 void ProjectContainer::newScript() {
-	newChartObj(new CScript("new script", true, "return nil;"));
+	newChartObj(new CScript("new script", true, "exit null;"));
 }
 
 

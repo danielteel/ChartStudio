@@ -5,13 +5,13 @@
 
 bool SyntaxColoredEditor::IsInitialized = false;
 
- const char* SyntaxColoredEditor::WORDDEF[] = { "IF", "WHILE", "DOUBLE", "ELSE", "RETURN", "BREAK", "MSGBOX"};
+ const char* SyntaxColoredEditor::WORDDEF[] = { "if", "while", "for", "loop", "else", "break", "return","exit","double","string","bool"};
  const int SyntaxColoredEditor::WORDMAX = NELEMS(WORDDEF);
  int SyntaxColoredEditor::WORDLEN[NELEMS(WORDDEF)];
- const char* SyntaxColoredEditor::FUNCDEF[] = { "MIN", "MAX", "CLAMP", "ISNIL", "ABS" };
+ const char* SyntaxColoredEditor::FUNCDEF[] = { "min","max", "ceil","floor","clamp","abs","lcase","ucase","trim","len","substr" };
  const int SyntaxColoredEditor::FUNCMAX = NELEMS(FUNCDEF);
  int SyntaxColoredEditor::FUNCLEN[NELEMS(FUNCDEF)];
- const char* SyntaxColoredEditor::VARDEF[] = { "TRUE", "FALSE", "NIL", "THIS"};
+ const char* SyntaxColoredEditor::VARDEF[] = { "true", "false", "null", "this"};
  const int SyntaxColoredEditor::VARMAX = NELEMS(VARDEF);
  int SyntaxColoredEditor::VARLEN[NELEMS(VARDEF)];
 
@@ -515,7 +515,7 @@ LRESULT CALLBACK SyntaxColoredEditor::RichProc(HWND hwnd, UINT msg, WPARAM wPara
 									if ((identStart + identLen) >= firstVisCharIndex) {//Is it scrolled so far to the right we cant see it?
 										for (int wordIndex = 0; wordIndex < WORDMAX; wordIndex++) {//Check for commands to highlight
 											if (identLen == WORDLEN[wordIndex]) {
-												if (!_strnicmp(ident, WORDDEF[wordIndex], WORDLEN[wordIndex])) {
+												if (!strncmp(ident, WORDDEF[wordIndex], WORDLEN[wordIndex])) {
 													SetTextColor(editDC, sce->commandColor);
 													sce->drawText(editDC, lineText + identStart, identLen, leftMostChar + identStart, selRange, fontHeight);
 													found = 1;
@@ -526,7 +526,7 @@ LRESULT CALLBACK SyntaxColoredEditor::RichProc(HWND hwnd, UINT msg, WPARAM wPara
 										if (!found && charIndex < lineLen && lineText[charIndex] == '(') {
 											for (int wordIndex = 0; wordIndex < FUNCMAX; wordIndex++) {//Check for functions to highlight
 												if (identLen == FUNCLEN[wordIndex]) {
-													if (!_strnicmp(ident, FUNCDEF[wordIndex], FUNCLEN[wordIndex])) {
+													if (!strncmp(ident, FUNCDEF[wordIndex], FUNCLEN[wordIndex])) {
 														SetTextColor(editDC, sce->functionColor);
 														sce->drawText(editDC, lineText + identStart, identLen, leftMostChar + identStart, selRange, fontHeight);
 														found = 1;
@@ -538,7 +538,7 @@ LRESULT CALLBACK SyntaxColoredEditor::RichProc(HWND hwnd, UINT msg, WPARAM wPara
 										if (!found) {
 											for (int wordIndex = 0; wordIndex < VARMAX; wordIndex++) {//Check for variables to highlight
 												if (identLen == VARLEN[wordIndex]) {
-													if (!_strnicmp(ident, VARDEF[wordIndex], VARLEN[wordIndex])) {
+													if (!strncmp(ident, VARDEF[wordIndex], VARLEN[wordIndex])) {
 														SetTextColor(editDC, sce->variableColor);
 														sce->drawText(editDC, lineText + identStart, identLen, leftMostChar + identStart, selRange, fontHeight);
 														found = 1;
