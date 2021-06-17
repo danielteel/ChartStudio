@@ -1,9 +1,10 @@
 #pragma once
 #include "CChartObject.h"
 #include <string>
+
 using namespace std;
 
-class Interpreter;
+class ChartProject;
 
 class CInput :
 	public CChartObject {
@@ -15,8 +16,7 @@ public:
 	void setCode(string code);
 	string getCode();
 
-	bool checkCompile(ChartProject* chartProject, int& errorLine, string& errorMessage);
-
+	optional<string> checkCompile(ChartProject* chartProject);
 	bool checkIsBad(ChartProject* chartProject, string& whyItsBad) override;
 
 	string toString() override;
@@ -25,6 +25,5 @@ public:
 
 private:
 	string code;
-	Interpreter* interpreter;
 };
 
