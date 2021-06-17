@@ -25,11 +25,11 @@
     <Filter Include="Source Files\UI">
       <UniqueIdentifier>{e3c118e3-e51c-402a-9750-8003e94c8970}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ChartProject Classes\Interpreter">
-      <UniqueIdentifier>{09980cd4-fd14-45b8-bbab-37639b155a11}</UniqueIdentifier>
+    <Filter Include="Header Files\Interpreter">
+      <UniqueIdentifier>{da109b0d-2b9a-41a2-bb1c-0ce0172d7c4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\ChartProject Classes\Interpreter">
-      <UniqueIdentifier>{ca845295-7402-4f7c-9349-86308bc2c056}</UniqueIdentifier>
+    <Filter Include="Source Files\Interpreter">
+      <UniqueIdentifier>{d3335b50-0be9-4beb-8d9e-0e107d677423}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -105,9 +105,6 @@
     <ClInclude Include="FileParser.h">
       <Filter>Header Files\ChartProject Classes</Filter>
     </ClInclude>
-    <ClInclude Include="Interpreter.h">
-      <Filter>Header Files\ChartProject Classes</Filter>
-    </ClInclude>
     <ClInclude Include="TLine.h">
       <Filter>Header Files\ChartProject Classes</Filter>
     </ClInclude>
@@ -135,26 +132,29 @@
     <ClInclude Include="Exporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tokenizer.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    <ClInclude Include="ExternalDef.h">
+      <Filter>Header Files\Interpreter</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
-    </ClInclude>
-    <ClInclude Include="Interpret.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
-    </ClInclude>
-    <ClInclude Include="OpObj.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
-    </ClInclude>
-    <ClInclude Include="Program.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+    <ClInclude Include="InterpreterCPP.h">
+      <Filter>Header Files\Interpreter</Filter>
     </ClInclude>
     <ClInclude Include="OpCode.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+      <Filter>Header Files\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="OpObj.h">
+      <Filter>Header Files\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Header Files\Interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Tokenizer.h">
+      <Filter>Header Files\Interpreter</Filter>
     </ClInclude>
     <ClInclude Include="UnlinkedObj.h">
-      <Filter>Header Files\ChartProject Classes\Interpreter</Filter>
+      <Filter>Header Files\Interpreter</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -224,9 +224,6 @@
     <ClCompile Include="FileParser.cpp">
       <Filter>Source Files\ChartProject Classes</Filter>
     </ClCompile>
-    <ClCompile Include="Interpreter.cpp">
-      <Filter>Source Files\ChartProject Classes</Filter>
-    </ClCompile>
     <ClCompile Include="TLine.cpp">
       <Filter>Source Files\ChartProject Classes</Filter>
     </ClCompile>
@@ -254,26 +251,29 @@
     <ClCompile Include="Exporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tokenizer.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    <ClCompile Include="ExternalDef.cpp">
+      <Filter>Source Files\Interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="Parser.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
-    </ClCompile>
-    <ClCompile Include="Interpret.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
-    </ClCompile>
-    <ClCompile Include="OpObj.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
-    </ClCompile>
-    <ClCompile Include="Program.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+    <ClCompile Include="InterpreterCPP.cpp">
+      <Filter>Source Files\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="OpCode.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+      <Filter>Source Files\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="OpObj.cpp">
+      <Filter>Source Files\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Parser.cpp">
+      <Filter>Source Files\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files\Interpreter</Filter>
+    </ClCompile>
+    <ClCompile Include="Tokenizer.cpp">
+      <Filter>Source Files\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="UnlinkedObj.cpp">
-      <Filter>Source Files\ChartProject Classes\Interpreter</Filter>
+      <Filter>Source Files\Interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

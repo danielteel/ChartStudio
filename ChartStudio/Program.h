@@ -3,6 +3,8 @@
 #include <vector>
 #include "OpObj.h"
 #include "OpCode.h"
+#include "ExternalDef.h"
+using namespace std;
 
 enum class CodeState {
 	building,
@@ -15,6 +17,8 @@ public:
 	Program();
 	~Program();
 	void reset();
+
+	void throwError(string message);
 
 	size_t addCode(OpCode op);
 	void insertCode(OpCode op, size_t afterThis);
@@ -35,15 +39,11 @@ public:
 	NumberObj zeroObj = NumberObj(0, true);
 	NullObj nullObj = NullObj();
 
-	/*
+	
 	void link();
-
 	OpObj * linkedObject(UnlinkedObj * obj, vector<vector<vector<OpObj*>>>& scopes, bool * needToFree);
 
-	OpObj* execute(vector<OpObj*> externals);
-
-
-	*/
+	OpObj* execute(vector<ExternalDef> externals);
 };
 
 

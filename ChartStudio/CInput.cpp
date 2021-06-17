@@ -1,19 +1,17 @@
 #include "stdafx.h"
 #include "CInput.h"
 #include "helpers.h"
-#include "Interpreter.h"
+#include "InterpreterCPP.h"
 
 
 
 CInput::CInput(string name, optional<double> initialValue, string code) : CChartObject(name, ChartObjectType::Input, false) {
 	this->setCode(code);
 	this->result = initialValue;
-	this->interpreter = new Interpreter();
 }
 
 
 CInput::~CInput() {
-	delete this->interpreter;
 }
 
 void CInput::setCode(string code) {
@@ -24,15 +22,17 @@ string CInput::getCode() {
 	return this->code;
 }
 
-bool CInput::checkCompile(ChartProject* chartProject, int & errorLine, string & errorMessage) {
-	return this->interpreter->checkCompile(chartProject, this, this->code, errorLine, errorMessage);
+
+optional<string> CInput::checkCompile(ChartProject* chartProject) {
+	InterpreterCPP interpreter;
+	return interpreter.checkCompile(chartProject, this, this->code.c_str(), true);
 }
 
 bool CInput::checkIsBad(ChartProject * chartProject, string& whyItsBad) {
 	int errorLine = 0;
-	string errorMessage;
-	if (!this->checkCompile(chartProject, errorLine, errorMessage)) {
-		whyItsBad = "Error on line " + to_string(errorLine) + ": " + errorMessage;
+	optional<string> errorMessage = this->checkCompile(chartProject);
+	if (errorMessage != nullopt) {
+		whyItsBad = *errorMessage;
 		return true;
 	}
 	whyItsBad = "Good";
@@ -46,5 +46,6 @@ string CInput::toString() {
 }
 
 void CInput::calc(ChartProject* chartProject) {
-	this->interpreter->runCode(chartProject, this, this->code, this->result);
+	InterpreterCPP interpreter;
+	interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr, &this->result);
 }

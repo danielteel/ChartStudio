@@ -171,10 +171,10 @@
     <ClInclude Include="CTrendChart.h" />
     <ClInclude Include="DoubleBuff.h" />
     <ClInclude Include="Exporter.h" />
+    <ClInclude Include="ExternalDef.h" />
     <ClInclude Include="FileParser.h" />
     <ClInclude Include="helpers.h" />
-    <ClInclude Include="Interpret.h" />
-    <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="InterpreterCPP.h" />
     <ClInclude Include="ListUI.h" />
     <ClInclude Include="OpCode.h" />
     <ClInclude Include="OpObj.h" />
@@ -214,10 +214,10 @@
     <ClCompile Include="CTrendChart.cpp" />
     <ClCompile Include="DoubleBuff.cpp" />
     <ClCompile Include="Exporter.cpp" />
+    <ClCompile Include="ExternalDef.cpp" />
     <ClCompile Include="FileParser.cpp" />
     <ClCompile Include="helpers.cpp" />
-    <ClCompile Include="Interpret.cpp" />
-    <ClCompile Include="Interpreter.cpp" />
+    <ClCompile Include="InterpreterCPP.cpp" />
     <ClCompile Include="ListUI.cpp" />
     <ClCompile Include="OpCode.cpp" />
     <ClCompile Include="OpObj.cpp" />

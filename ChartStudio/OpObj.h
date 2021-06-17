@@ -10,6 +10,7 @@ enum class OpObjType {
 	Bool,
 	Number,
 	String,
+	Function
 };
 
 class OpObj {
@@ -23,6 +24,7 @@ public:
 	bool isConstant;
 
 	virtual void setTo(OpObj* obj) = 0;
+	virtual OpObj* getCopy() = 0;
 
 	virtual bool equalTo(OpObj * obj) = 0;
 	virtual bool notEqualTo(OpObj * obj) = 0;
@@ -30,6 +32,25 @@ public:
 	virtual bool greaterOrEqualsThan(OpObj * obj) = 0;
 	virtual bool smallerThan(OpObj * obj) = 0;
 	virtual bool smallerOrEqualsThan(OpObj * obj) = 0;
+};
+
+class FuncObj : public OpObj {
+public:
+	FuncObj();
+	FuncObj(OpObj*(*fn) (OpObj*(*fn) ()));
+	virtual ~FuncObj();
+
+	OpObj*(*fn) (OpObj*(*fn) ()) = nullptr;
+	void setTo(OpObj* obj);
+
+	OpObj* getCopy();
+
+	bool equalTo(OpObj* obj);
+	bool notEqualTo(OpObj* obj);
+	bool greaterThan(OpObj * obj);
+	bool greaterOrEqualsThan(OpObj * obj);
+	bool smallerThan(OpObj * obj);
+	bool smallerOrEqualsThan(OpObj * obj);
 };
 
 class StringObj :public OpObj {
@@ -41,6 +62,8 @@ public:
 	optional<string> value;
 
 	void setTo(OpObj* obj);
+	OpObj* getCopy();
+
 	bool equalTo(OpObj* obj);
 	bool notEqualTo(OpObj* obj);
 	bool greaterThan(OpObj * obj);
@@ -58,6 +81,8 @@ public:
 	optional<double> value;
 
 	void setTo(OpObj* obj);
+	OpObj* getCopy();
+
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);
 	bool greaterThan(OpObj * obj);
@@ -72,9 +97,11 @@ public:
 	BoolObj(optional<bool> initialValue, bool isConstant);
 	virtual ~BoolObj();
 
-	optional<double> value;
+	optional<bool> value;
 
 	void setTo(OpObj* obj);
+	OpObj* getCopy();
+
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);
 	bool greaterThan(OpObj * obj);
@@ -89,6 +116,8 @@ public:
 	virtual ~NullObj();
 
 	void setTo(OpObj* obj);
+	OpObj* getCopy();
+
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);
 	bool greaterThan(OpObj * obj);
@@ -108,6 +137,8 @@ public:
 	NullObj nullObj;
 
 	void setTo(OpObj* obj);
+	OpObj* getCopy();
+
 	OpObj* getNativeObj();
 	bool equalTo(OpObj * obj);
 	bool notEqualTo(OpObj * obj);

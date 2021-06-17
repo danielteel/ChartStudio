@@ -1,8 +1,7 @@
 #include "stdafx.h"
-
 #include "OpCode.h"
 #include "Parser.h"
-
+#include <algorithm>
 
 string IdentityTypeToString(IdentityType type) {
 	switch (type) {
@@ -169,6 +168,8 @@ Parser::Parser(vector<TokenObj>& tokens) {
 	this->allocScope.push_back(0);
 	this->allocScopeIndex = 0;
 
+	this->externalsScopeIndex = 0;
+
 	this->maxScopeDepth = 0;
 }
 
@@ -226,7 +227,7 @@ void Parser::getToken() {
 		this->token = &this->tokens[this->tokenIndex];
 
 		while (this->token && this->token->type == InterpreterTokenType::NewLine) {
-			this->program.addCode(OpCode::codeLine(this->token->sValue));
+			//this->program.addCode(OpCode::codeLine(this->token->sValue));
 			this->tokenIndex++;
 			if (!this->isNotEnd()) break;
 			this->token = &this->tokens[this->tokenIndex];
@@ -244,12 +245,16 @@ void Parser::firstToken() {
 	}
 }
 
-void Parser::parse(vector<ExternalDef> externals) {
+void Parser::parse(vector<ExternalDef> externals, optional<IdentityType> expectExitType) {
+	this->exitType = expectExitType;
+	
 	this->tokenIndex = this->tokens.size();
 	this->firstToken();
+	
 
 	this->branchCounter = 1;
-	
+
+	this->externalsScopeIndex = 0;
 	this->scopeIndex = 0;
 	this->scopes.clear();
 	this->scopes.push_back({});
@@ -268,36 +273,40 @@ void Parser::parse(vector<ExternalDef> externals) {
 
 	const size_t entryPoint = this->newBranch();
 	const size_t entryPointAddress = this->program.addCode(OpCode::label(entryPoint));
-	this->program.addCode(OpCode::codeLine(""));
 
 	this->doBlock(nullopt, nullopt, false, false, true, nullopt);
-	this->program.addCode(OpCode::codeLine(""));
 	this->program.addCode( OpCode::exit(UnlinkedObj()) );
 
 	vector<OpCode> mainPreamble = {OpCode::scopeDepth(this->maxScopeDepth)};
 	if (this->allocScope[this->allocScopeIndex]) {
 		mainPreamble.push_back(OpCode::pushScope(this->allocScopeIndex, this->allocScope[this->allocScopeIndex]));
 	}
-	this->program.insertCode(mainPreamble, entryPointAddress + 1);
+	this->program.insertCode(mainPreamble, entryPointAddress);
 
 	this->popAllocScope();
+
+	this->popScope();
 }
 
 void Parser::pushAllocScope() {
+	this->allocScopeIndex++;
 	this->allocScope.push_back(0);
 	this->maxScopeDepth = max(this->maxScopeDepth, this->allocScopeIndex);
 }
 
 void Parser::popAllocScope() {
 	this->allocScope.pop_back();
+	this->allocScopeIndex--;
 }
 
 void Parser::pushScope() {
 	this->scopes.push_back({});
+	this->scopeIndex++;
 }
 
 void Parser::popScope() {
 	this->scopes.pop_back();
+	this->scopeIndex--;
 }
 
 
@@ -305,10 +314,12 @@ ScopeObj Parser::addToCurrentScope(string name, IdentityType type, size_t branch
 	bool alreadyExists = this->getIdentity(name, true) != nullptr;
 	if (alreadyExists) this->throwError("duplicate name definition, " + name + " already exists in current scope");
 
-	ScopeObj obj = ScopeObj(name, type, branch, params, returnType, this->allocScopeIndex, this->allocScope[this->allocScopeIndex]);
+	ScopeObj obj = ScopeObj(name, type, branch, params, returnType, this->allocScopeIndex, (this->allocScopeIndex==0 ? this->externalsScopeIndex : this->allocScope[this->allocScopeIndex]) );
 
 	this->scopes[this->scopeIndex].push_back(obj);
-
+	if (this->allocScopeIndex == 0) {
+		this->externalsScopeIndex++;
+	}
 	switch (type) {
 		case IdentityType::Bool:
 		case IdentityType::Double:
@@ -323,7 +334,7 @@ ScopeObj Parser::addToCurrentScope(string name, IdentityType type, size_t branch
 
 ScopeObj* Parser::getIdentity(string name, bool onlyInCurrentScope=false) {
 	if (this->scopes.size() == 0) return nullptr;
-	for (size_t i = this->scopeIndex;i>=0;i--){
+	for (int i = this->scopeIndex;i>=0;i--){
 		if (this->scopes[i].size() > 0) {
 			for (size_t j = 0; j < this->scopes[i].size(); j++) {
 				if (this->scopes[i][j].name == name) return &this->scopes[i][j];
@@ -380,11 +391,11 @@ bool Parser::isCompareOp() {
 }
 
 bool Parser::isOrOp() {
-	return this->token->type == InterpreterTokenType::And;
+	return this->token->type == InterpreterTokenType::Or;
 }
 
 bool Parser::isAndOp() {
-	return this->token->type == InterpreterTokenType::Or;
+	return this->token->type == InterpreterTokenType::And;
 }
 
 bool Parser::isTernaryOp() {
@@ -436,7 +447,7 @@ IdentityType Parser::doIdent() {
 	
 	switch (identObj->type) {
 	case IdentityType::Function:
-		return this->doFuncCall();
+		return this->doFuncCall(varName);
 
 	case IdentityType::String:
 	case IdentityType::Double:
@@ -473,7 +484,7 @@ IdentityType Parser::doFactor() {
 			this->match(InterpreterTokenType::Question);
 			type = this->doFactor();
 			this->program.addCode(OpCode::cmp( UnlinkedObj(RegisterId::eax), UnlinkedObj() ));
-			this->program.addCode(OpCode::sne( UnlinkedObj(RegisterId::eax) ));
+			this->program.addCode(OpCode::se( UnlinkedObj(RegisterId::eax) ));
 			return IdentityType::Bool;
 
 		case InterpreterTokenType::LeftParen:
@@ -725,7 +736,7 @@ IdentityType Parser::doTerm() {
 IdentityType Parser::doAdd() {
 	IdentityType leftType = this->doTerm();
 
-	while (this->isNotEnd() && this->isTermOp()) {
+	while (this->isNotEnd() && this->isAddOp()) {
 		this->program.addCode(OpCode::push(UnlinkedObj(RegisterId::eax)));
 
 		InterpreterTokenType addOp = this->token->type;
@@ -895,7 +906,7 @@ void Parser::doIf(optional<size_t> breakToBranch, optional<size_t> returnToBranc
 		this->program.addCode(OpCode::label(elseLabel));
 	}
 
-	this->program.addCode(OpCode::codeLine(""));
+	//this->program.addCode(OpCode::codeLine(""));
 }
 
 void Parser::doWhile(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
@@ -917,7 +928,6 @@ void Parser::doWhile(optional<size_t> returnToBranch, optional<IdentityType> ret
 
 	this->program.addCode(OpCode::jmp(loopLabel));
 	this->program.addCode(OpCode::label(endLabel));
-	this->program.addCode(OpCode::codeLine(""));
 }
 
 void Parser::doLoop(optional<size_t> returnToBranch, optional<IdentityType> returnType) {
@@ -951,9 +961,9 @@ void Parser::doFor(optional<size_t> returnToBranch, optional<IdentityType> retur
 	this->pushScope();
 
 	this->match(InterpreterTokenType::For);
-	this->match(InterpreterTokenType::LeftCurly);
+	this->match(InterpreterTokenType::LeftParen);
 
-	if (this->isNotEnd() && this->token->type == InterpreterTokenType::LineDelim) {
+	if (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim) {
 		this->doAssignOrDeclare(true);
 	} else {
 		this->match(InterpreterTokenType::LineDelim);
@@ -986,7 +996,7 @@ void Parser::doFor(optional<size_t> returnToBranch, optional<IdentityType> retur
 	this->program.addCode(OpCode::label(endLabel));
 
 	this->popScope();
-	this->program.addCode(OpCode::codeLine(""));
+	//this->program.addCode(OpCode::codeLine(""));
 }
 
 void Parser::doBreak(optional<size_t> breakToBranch) {
@@ -1001,7 +1011,12 @@ void Parser::doBreak(optional<size_t> breakToBranch) {
 void Parser::doExit() {
 	this->match(InterpreterTokenType::Exit);
 	if (this->isNotEnd() && this->token->type != InterpreterTokenType::LineDelim) {
-		this->doExpression();
+		IdentityType exitWithType = this->doExpression();
+		if (this->exitType != nullopt) {
+			if (exitWithType != *this->exitType) {
+				this->matchType(exitWithType, *this->exitType, true);
+			}
+		}
 		this->program.addCode(OpCode::exit(UnlinkedObj(RegisterId::eax)));
 	} else {
 		this->program.addCode(OpCode::exit(UnlinkedObj()));
@@ -1138,7 +1153,7 @@ void Parser::doFunction(string name, IdentityType type) {
 	vector<OpCode> funcPreamble;
 	funcPreamble.push_back(OpCode::pushScope(this->allocScopeIndex, this->allocScope[this->allocScopeIndex]));
 
-	for (size_t i = paramObjs.size() - 1; i >= 0; i--) {
+	for (int i = paramObjs.size() - 1; i >= 0; i--) {
 		UnlinkedObj unlinkedParam = UnlinkedObj(paramObjs[i].type, paramObjs[i].scope, paramObjs[i].index);
 		switch (paramObjs[i].type) {
 			case IdentityType::Bool:
@@ -1153,13 +1168,13 @@ void Parser::doFunction(string name, IdentityType type) {
 			default:
 				this->throwError("unexpected token in parameter list " + TokenTypeToString(this->token->type));
 		}
+		funcPreamble.push_back(OpCode::pop(unlinkedParam));
 	}
 
 	this->program.insertCode(funcPreamble, funcAddress);
 	
 	this->popAllocScope();
 	this->program.addCode(OpCode::label(skipFuncBranch));
-	this->program.addCode(OpCode::codeLine(""));
 }
 
 

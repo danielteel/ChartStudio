@@ -1,17 +1,15 @@
 #include "stdafx.h"
 #include "CScript.h"
 #include "helpers.h"
-#include "Interpreter.h"
+#include "InterpreterCPP.h"
 
 
 CScript::CScript(string name, bool exportResult, string code) : CChartObject(name, ChartObjectType::Script, exportResult) {
 	this->setCode(code);
-	this->interpreter = new Interpreter();
 }
 
 
 CScript::~CScript() {
-	delete this->interpreter;
 }
 
 void CScript::setCode(string code) {
@@ -22,15 +20,16 @@ string CScript::getCode() {
 	return this->code;
 }
 
-bool CScript::checkCompile(ChartProject* chartProject, int & errorLine, string & errorMessage) {
-	return this->interpreter->checkCompile(chartProject, this, this->code, errorLine, errorMessage);
+optional<string> CScript::checkCompile(ChartProject* chartProject) {
+	InterpreterCPP interpreter;
+	return interpreter.checkCompile(chartProject, this, this->code.c_str(), false);
 }
 
 bool CScript::checkIsBad(ChartProject * chartProject, string& whyItsBad) {
 	int errorLine = 0;
-	string errorMessage;
-	if (!this->checkCompile(chartProject, errorLine, errorMessage)) {
-		whyItsBad = "Error on line " + to_string(errorLine) + ": " + errorMessage;
+	optional<string> errorMessage= this->checkCompile(chartProject);
+	if (errorMessage!=nullopt) {
+		whyItsBad = *errorMessage;
 		return true;
 	}
 	whyItsBad = "Good";
@@ -44,6 +43,7 @@ string CScript::toString() {
 }
 
 void CScript::calc(ChartProject* chartProject) {
-	this->interpreter->runCode(chartProject, this, this->code, this->result);
+	InterpreterCPP interpreter;
+	this->result=interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr);
 }
 

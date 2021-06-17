@@ -134,7 +134,7 @@ void Tokenizer::ident() {
 	if (name.length() == 0) this->throwError("expected identifier, but got nothing");
 
 	if (name == "if") {
-
+		this->addToken(InterpreterTokenType::If);
 	} else if (name == "while") {
 		this->addToken(InterpreterTokenType::While);
 	} else if (name == "for") {

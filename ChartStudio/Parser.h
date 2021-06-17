@@ -5,37 +5,9 @@
 #include "OpObj.h"
 #include "Program.h"
 #include "UnlinkedObj.h"
+#include "ExternalDef.h"
 using namespace std;
 
-
-class ExternalDef {
-	public:
-		string name;
-		IdentityType type;
-		OpObj* opObj;
-		void* functionAddress;
-		vector<IdentityType> params;
-		IdentityType returnType;
-
-	ExternalDef(string name, IdentityType type, OpObj* opObj){
-		this->name = name;
-		this->type = type;
-		this->opObj = opObj;
-		this->functionAddress = nullptr;
-	}
-
-	ExternalDef(string name, IdentityType returnType, vector<IdentityType> params, void* functionAddress) {
-		this->name = name;
-		this->type = IdentityType::Function;
-		this->returnType = returnType;
-		this->params = params;
-		this->functionAddress = functionAddress;
-		this->opObj = nullptr;
-	}
-	
-	ExternalDef() {
-	}
-};
 
 class ScopeObj {
 	public:
@@ -92,7 +64,7 @@ public:
 	bool isNotEnd();
 	void getToken();
 	void firstToken();
-	void parse(vector<ExternalDef> externals);
+	void parse(vector<ExternalDef> externals, optional<IdentityType> exitType = nullopt);
 	void pushAllocScope();
 	void popAllocScope();
 	void pushScope();
@@ -140,6 +112,8 @@ public:
 
 	string errorMsg;
 
+	optional<IdentityType> exitType = nullopt;
+
 	vector<TokenObj> tokens;
 	size_t tokenIndex = 0;
 	TokenObj* token;
@@ -149,6 +123,8 @@ public:
 	size_t scopeIndex = 0;
 	size_t allocScopeIndex = 0;
 	size_t maxScopeDepth = 0;
+	size_t externalsScopeIndex = 0;
+
 
 	vector<size_t> allocScope;
 	vector<vector<ScopeObj>> scopes;

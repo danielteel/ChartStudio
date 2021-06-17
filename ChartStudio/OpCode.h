@@ -1,5 +1,6 @@
 #pragma once
 #include "UnlinkedObj.h"
+using namespace std;
 
 enum class OpCodeType {
 	label,

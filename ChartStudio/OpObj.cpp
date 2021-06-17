@@ -27,8 +27,14 @@ NullObj::NullObj() : OpObj(OpObjType::Null, OpObjType::Null, true) {
 NullObj::~NullObj() {
 }
 
+
 void NullObj::setTo(OpObj * obj) {
 	throw "tried to write to constant null obj";
+}
+
+OpObj * NullObj::getCopy() {
+	NullObj* newObj = new NullObj();
+	return newObj;
 }
 
 bool NullObj::equalTo(OpObj* obj) {
@@ -112,8 +118,15 @@ void NumberObj::setTo(OpObj * obj) {
 	}
 	if (numObj) {
 		this->value = numObj->value;
+	} else {
+		throw "tried to set object to incompatible object";
 	}
-	throw "tried to set object to incompatible object";
+}
+
+OpObj * NumberObj::getCopy() {
+	NumberObj* newObj = new NumberObj();
+	newObj->setTo(this);
+	return newObj;
 }
 
 bool NumberObj::equalTo(OpObj* obj) {
@@ -205,8 +218,15 @@ void StringObj::setTo(OpObj * obj) {
 	}
 	if (strObj) {
 		this->value = strObj->value;
+	} else {
+		throw "tried to set object to incompatible object";
 	}
-	throw "tried to set object to incompatible object";
+}
+
+OpObj * StringObj::getCopy() {
+	StringObj* newObj = new StringObj();
+	newObj->setTo(this);
+	return newObj;
 }
 
 bool StringObj::equalTo(OpObj * obj) {
@@ -285,8 +305,15 @@ void BoolObj::setTo(OpObj * obj) {
 	}
 	if (boolObj) {
 		this->value = boolObj->value;
+	} else {
+		throw "tried to set object to incompatible object";
 	}
-	throw "tried to set object to incompatible object";
+}
+
+OpObj * BoolObj::getCopy() {
+	BoolObj* newObj = new BoolObj();
+	newObj->setTo(this);
+	return newObj;
 }
 
 bool BoolObj::equalTo(OpObj* obj) {
@@ -337,7 +364,7 @@ bool BoolObj::smallerOrEqualsThan(OpObj * obj) {
 }
 
 
-RegisterObj::RegisterObj() {
+RegisterObj::RegisterObj() : OpObj(OpObjType::Register, OpObjType::Null, false) {
 }
 
 RegisterObj::~RegisterObj() {
@@ -365,6 +392,10 @@ void RegisterObj::setTo(OpObj * obj) {
 	} else {
 		throw "tried to set register to unknown data type";
 	}
+}
+
+OpObj * RegisterObj::getCopy() {
+	return this->getNativeObj()->getCopy();
 }
 
 
@@ -405,4 +436,48 @@ bool RegisterObj::smallerThan(OpObj * obj) {
 
 bool RegisterObj::smallerOrEqualsThan(OpObj * obj) {
 	return this->getNativeObj()->smallerOrEqualsThan(obj);
+}
+
+FuncObj::FuncObj() : OpObj(OpObjType::Function, OpObjType::Function, true) {
+	this->fn = nullptr;
+}
+
+FuncObj::FuncObj(OpObj*(*fn) (OpObj*(*fn)())) : OpObj(OpObjType::Function, OpObjType::Function, true) {
+	this->fn = fn;
+}
+
+FuncObj::~FuncObj() {
+}
+
+void FuncObj::setTo(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+OpObj * FuncObj::getCopy() {
+	throw "cant operate on FuncObj";
+}
+
+
+bool FuncObj::equalTo(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+bool FuncObj::notEqualTo(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+bool FuncObj::greaterThan(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+bool FuncObj::greaterOrEqualsThan(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+bool FuncObj::smallerThan(OpObj * obj) {
+	throw "cant operate on FuncObj";
+}
+
+bool FuncObj::smallerOrEqualsThan(OpObj * obj) {
+	throw "cant operate on FuncObj";
 }
