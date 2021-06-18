@@ -197,7 +197,7 @@ void Parser::matchType(IdentityType whatToTest, IdentityType typeItShouldBe, boo
 }
 
 bool Parser::typesDontMatch(IdentityType a, IdentityType b, bool strict = false) {
-	return !(a==b || (a==IdentityType::Null || b==IdentityType::Null && strict==false));
+	return !(a==b || ((a==IdentityType::Null || b==IdentityType::Null) && strict==false));
 }
 
 void Parser::assertType(IdentityType whatItIs, IdentityType whatItShouldBe, bool strict = false) {
@@ -1014,7 +1014,7 @@ void Parser::doExit() {
 		IdentityType exitWithType = this->doExpression();
 		if (this->exitType != nullopt) {
 			if (exitWithType != *this->exitType) {
-				this->matchType(exitWithType, *this->exitType, true);
+				this->matchType(exitWithType, *this->exitType);
 			}
 		}
 		this->program.addCode(OpCode::exit(UnlinkedObj(RegisterId::eax)));
