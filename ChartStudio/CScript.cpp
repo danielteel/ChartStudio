@@ -44,6 +44,7 @@ string CScript::toString() {
 
 void CScript::calc(ChartProject* chartProject) {
 	InterpreterCPP interpreter;
-	this->result=interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr);
+
+	this->result=interpreter.runCode(chartProject, this, this->code, nullptr, nullptr);
 }
 

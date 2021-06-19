@@ -1091,6 +1091,23 @@ INT_PTR CALLBACK RunChartsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 		}
 		break;
 
+	case WM_CTLCOLOREDIT: 
+		{
+			RunChartsData* rcd = reinterpret_cast<RunChartsData*>(GetWindowLongPtrA(hDlg, GWL_USERDATA));
+			HWND editCtrl = reinterpret_cast<HWND>(lParam);
+			for (size_t i = 0; i < rcd->inputObjects.size(); i++) {
+				if (rcd->inputBoxes[i] == editCtrl) {
+					CInput* inputObj = static_cast<CInput*>(rcd->inputObjects[i]);
+					if (inputObj && inputObj->isInvalid()) {
+						SetTextColor(reinterpret_cast<HDC>(wParam), RGB(255,0,0));
+					} else {
+					}
+					return reinterpret_cast<INT_PTR>(GetStockObject(WHITE_BRUSH));
+				}
+			}
+		}
+		break;
+
 	case WM_COMMAND:
 		{
 			RunChartsData* rcd = reinterpret_cast<RunChartsData*>(GetWindowLongPtrA(hDlg, GWL_USERDATA));
@@ -1125,6 +1142,7 @@ INT_PTR CALLBACK RunChartsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 						//set input values
 						for (size_t i = 0; i < rcd->inputObjects.size(); i++) {
 							rcd->inputObjects[i]->result = getWindowDouble(rcd->inputBoxes[i]);
+
 						}
 						
 						//run all the calculations

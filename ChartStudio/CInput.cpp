@@ -8,6 +8,7 @@
 CInput::CInput(string name, optional<double> initialValue, string code) : CChartObject(name, ChartObjectType::Input, false) {
 	this->setCode(code);
 	this->result = initialValue;
+	this->invalid = false;
 }
 
 
@@ -21,6 +22,12 @@ void CInput::setCode(string code) {
 string CInput::getCode() {
 	return this->code;
 }
+
+bool CInput::isInvalid() {
+	if (this->invalid == nullopt || *this->invalid == false) return false;
+	return true;
+}
+
 
 
 optional<string> CInput::checkCompile(ChartProject* chartProject) {
@@ -47,5 +54,5 @@ string CInput::toString() {
 
 void CInput::calc(ChartProject* chartProject) {
 	InterpreterCPP interpreter;
-	interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr, &this->result);
+	this->invalid=interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr, &this->result);
 }

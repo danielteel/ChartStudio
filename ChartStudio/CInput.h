@@ -16,6 +16,8 @@ public:
 	void setCode(string code);
 	string getCode();
 
+	bool isInvalid();
+
 	optional<string> checkCompile(ChartProject* chartProject);
 	bool checkIsBad(ChartProject* chartProject, string& whyItsBad) override;
 
@@ -25,5 +27,6 @@ public:
 
 private:
 	string code;
+	optional<bool> invalid = false;
 };
 

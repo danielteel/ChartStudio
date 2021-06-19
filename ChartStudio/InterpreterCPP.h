@@ -16,5 +16,6 @@ public:
 	void cleanUpExternList(vector<ExternalDef>& externals);
 
 	optional<string> checkCompile(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool hasThis);
-	optional<double> runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double>* thisValue=nullptr);
+	optional<double> runCode(ChartProject * chartProject, CChartObject * thisChartObject, string code, bool * errorOccured, string * errorOut);
+	optional<bool> runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double>* thisValue);
 };
