@@ -1199,6 +1199,7 @@ void Parser::doAssignment(bool wantsDelim = true) {
 	this->match(InterpreterTokenType::Ident);
 	ScopeObj* identObj = this->getIdentity(varName);
 	if (!identObj) this->throwError("tried to do assignment to undefined '" + varName + "'");
+
 	this->match(InterpreterTokenType::Assignment);
 	this->assertType(this->doExpression(), identObj->type);
 

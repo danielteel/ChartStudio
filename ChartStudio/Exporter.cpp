@@ -290,8 +290,9 @@ bool Exporter::exportToJS(ChartProject* chartProject, string toFile) {
 		if (object->exportResult) writeStringToFile(saveFile, getJSName(object, true) + ",");
 	}
 	writeStringToFile(saveFile, "];\n");
-
-	writeStringToFile(saveFile, "\tT.calc=()=>{for (let obj of T.calcArray) {obj.calc(T.calcArray);}};\n}");
+	writeStringToFile(saveFile, "\tT.alerts=[];\n");
+	writeStringToFile(saveFile, "\tT.calcInputs=()=>{T.alerts.length=0; for (let obj of T.calcArray) {if (obj.type==='input') obj.calc(T.calcArray, T.alerts);}};\n");
+	writeStringToFile(saveFile, "\tT.calc=()=>{T.alerts.length=0; for (let obj of T.calcArray) {obj.calc(T.calcArray, T.alerts);}};\n}");
 	fclose(saveFile);
 	return true;
 }

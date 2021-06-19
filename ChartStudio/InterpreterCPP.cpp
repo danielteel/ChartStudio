@@ -271,13 +271,13 @@ optional<double> InterpreterCPP::runCode(ChartProject* chartProject, CChartObjec
 }
 
 
-optional<bool> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double>* thisValue) {
+optional<bool> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double> thisValue) {
 	vector<ExternalDef> externs = buildExternList(chartProject, thisChartObject);
 
 	NumberObj* thisObj = nullptr;
 
 	if (thisValue) {
-		thisObj = new NumberObj(*thisValue, false);
+		thisObj = new NumberObj(thisValue, true);
 		externs.push_back(ExternalDef("this", IdentityType::Double, thisObj));
 	}
 
@@ -295,9 +295,7 @@ optional<bool> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject*
 
 				currentProject = chartProject;
 				OpObj* retObj = parser.program.execute(externs);
-				if (thisValue) {
-					*thisValue = thisObj->value;
-				}
+
 				if (retObj) {
 					if (retObj->objType == OpObjType::Bool) {
 						returnValue = static_cast<BoolObj*>(retObj)->value;

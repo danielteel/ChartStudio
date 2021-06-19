@@ -17,5 +17,5 @@ public:
 
 	optional<string> checkCompile(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool hasThis);
 	optional<double> runCode(ChartProject * chartProject, CChartObject * thisChartObject, string code, bool * errorOccured, string * errorOut);
-	optional<bool> runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double>* thisValue);
+	optional<bool> runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double> thisValue);
 };

@@ -54,5 +54,5 @@ string CInput::toString() {
 
 void CInput::calc(ChartProject* chartProject) {
 	InterpreterCPP interpreter;
-	this->invalid=interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr, &this->result);
+	this->invalid=interpreter.runCode(chartProject, this, this->code.c_str(), nullptr, nullptr, this->result);
 }
