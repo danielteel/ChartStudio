@@ -528,6 +528,35 @@ void ProjectContainer::objectMoveDown() {
 		}
 	}
 }
+void ProjectContainer::objectMoveToTop() {
+	if (selectedObject) {
+		if (chartProject) {
+			while (chartProject->canMoveChartUp(selectedObject)) {
+				chartProject->moveChartUp(selectedObject);
+			}
+			updateObjectsList();
+			needsUIUpdate();
+			if (selectedObject->toTable()) {
+				updateTableList();
+			}
+		}
+	}
+}
+void ProjectContainer::objectMoveToBottom() {
+	if (selectedObject) {
+		if (chartProject) {
+			while (chartProject->canMoveChartDown(selectedObject)) {
+				chartProject->moveChartDown(selectedObject);
+			}
+			updateObjectsList();
+			needsUIUpdate();
+			if (selectedObject->toTable()) {
+				updateTableList();
+			}
+		}
+	}
+
+}
 
 void ProjectContainer::objectListChangeSel(CChartObject* newSel) {
 	setSelectedObject(newSel);

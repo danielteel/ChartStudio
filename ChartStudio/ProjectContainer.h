@@ -86,6 +86,8 @@ public:
 	void objectMarkBounds(int id);
 	void objectMoveUp();
 	void objectMoveDown();
+	void objectMoveToTop();
+	void objectMoveToBottom();
 	void objectDelete();
 
 

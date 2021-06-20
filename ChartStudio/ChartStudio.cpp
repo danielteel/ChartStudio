@@ -449,6 +449,9 @@ void rightClickChartsBox(char* item, int id) {
 		CheckMenuItem(subMenu, i, MF_BYPOSITION | MF_UNCHECKED);
 	}
 
+	EnableMenuItem(subMenu, ID_OBJ_MOVETOTOP, MF_BYCOMMAND | MF_ENABLED);
+	EnableMenuItem(subMenu, ID_OBJ_MOVETOBOTTOM, MF_BYCOMMAND | MF_ENABLED);
+
 	EnableMenuItem(subMenu, ID_OBJ_TOGGLEEXPORT, MF_BYCOMMAND | MF_ENABLED);
 	EnableMenuItem(subMenu, ID_OBJ_EDIT, MF_BYCOMMAND | MF_ENABLED);
 	EnableMenuItem(subMenu, ID_OBJ_DELETE, MF_BYCOMMAND | MF_ENABLED);
@@ -1083,6 +1086,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 				break;
 			case ID_OBJ_UP:
 				if (gProject) gProject->objectMoveUp();
+				break;
+			case ID_OBJ_MOVETOBOTTOM:
+				if (gProject) gProject->objectMoveToBottom();
+				break;
+			case ID_OBJ_MOVETOTOP:
+				if (gProject) gProject->objectMoveToTop();
 				break;
 			case ID_OBJ_ADDLINEAR:
 				if (gProject) gProject->newLinearChart();
