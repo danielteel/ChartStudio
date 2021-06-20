@@ -509,7 +509,11 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 								if (static_cast<StringObj*>(val)->value == nullopt) {
 									numObj.value == nullopt;
 								} else {
-									numObj.value = stod(*static_cast<StringObj*>(val)->value);
+									try {
+										numObj.value = stod(*static_cast<StringObj*>(val)->value);
+									} catch (...) {
+										numObj.value = nullopt;
+									}
 								}
 								break;
 							case OpObjType::Bool:

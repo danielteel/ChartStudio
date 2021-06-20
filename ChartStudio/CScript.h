@@ -23,7 +23,6 @@ public:
 
 	void calc(ChartProject* chartProject) override;
 
-private:
 	string code;
 };
 

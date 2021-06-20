@@ -142,9 +142,9 @@ bool Exporter::exportToJS(ChartProject* chartProject, string toFile) {
 		writeStringToFile(saveFile, input->getName());
 		writeStringToFile(saveFile, "','");
 		writeCode(saveFile, input->getCode());
-		writeStringToFile(saveFile, "',");
-		writeStringToFile(saveFile, input->result ? trimmedDoubleToString(*input->result) : "0");
-		writeStringToFile(saveFile, ");\n");
+		writeStringToFile(saveFile, "','");
+		writeCode(saveFile, input->input);
+		writeStringToFile(saveFile, "');\n");
 	}
 
 	for (auto & object : chartProject->objects) {

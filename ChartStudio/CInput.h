@@ -9,7 +9,7 @@ class ChartProject;
 class CInput :
 	public CChartObject {
 public:
-	CInput(string name, optional<double> intialValue, string code="");
+	CInput(string name, string intialValue, string code="");
 	virtual ~CInput();
 
 
@@ -25,8 +25,9 @@ public:
 
 	void calc(ChartProject* chartProject) override;
 
-private:
+	string input;
+	bool invalid = false;
+
 	string code;
-	optional<bool> invalid = false;
 };
 

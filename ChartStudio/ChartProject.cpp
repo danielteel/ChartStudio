@@ -79,11 +79,11 @@ ChartProject::ChartProject(string file) {
 
 			} else if (ident == "input") {
 				string name, code;
-				double value;
+				string value;
 				if (!parser.matchChar('(')) break;
 				if (!parser.getString(name)) break;
 				if (!parser.matchChar(',')) break;
-				if (!parser.getDouble(value)) break;
+				if (!parser.getString(value)) break;
 				if (!parser.matchChar(',')) break;
 				if (!parser.getString(code)) break;
 				if (!parser.matchChar(')')) break;
@@ -767,7 +767,7 @@ void ChartProject::deleteConstant(CConstant* constant) {
 	}
 }
 
-CInput* ChartProject::newInput(string name, optional<double> initialValue, string code) {
+CInput* ChartProject::newInput(string name, string initialValue, string code) {
 	CInput* input = new CInput(name, initialValue, code);
 	if (input) {
 		this->inputs.push_back(input);

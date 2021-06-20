@@ -136,7 +136,7 @@ public:
 	CConstant * newConstant(string name, double value);
 	void deleteConstant(CConstant * constant);
 
-	CInput * newInput(string name, optional<double> initialValue, string code);
+	CInput * newInput(string name, string initialValue, string code);
 	void deleteInput(CInput * input);
 
 	void calculate();

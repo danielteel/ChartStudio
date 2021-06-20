@@ -437,7 +437,7 @@ void ProjectContainer::constantMoveDown() {
 
 void ProjectContainer::inputAdd() {
 	if (chartProject && ui) {
-		CInput* newInput = chartProject->newInput("new input", 0.0f, "this=this;");
+		CInput* newInput = chartProject->newInput("new input", "0", "exit double(input);");
 		updateInputsList();
 		ui->inputsList->setCurSelItemData((char*)newInput);
 		needsUIUpdate();

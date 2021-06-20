@@ -1049,7 +1049,7 @@ INT_PTR CALLBACK RunChartsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 						rcd->inputObjects.push_back(input);
 						HWND newInput = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_AUTOHSCROLL | WS_TABSTOP | WS_BORDER, 0, 0, 0, 0, hDlg, 0, hInst, 0);
 						rcd->inputBoxes.push_back(newInput);
-						SetWindowTextA(newInput, trimmedDoubleToString(input->result.value_or(0)).c_str());
+						SetWindowTextA(newInput, input->input.c_str());
 						HWND newLabel = CreateWindowA("static", input->getName().c_str(), WS_VISIBLE | WS_CHILD | SS_CENTERIMAGE, 0, 0, 0, 0, hDlg, 0, hInst, 0);
 						rcd->inputLabels.push_back(newLabel);
 						HFONT windowFont = (HFONT)SendMessage(hDlg, WM_GETFONT, 0, 0);
@@ -1141,17 +1141,13 @@ INT_PTR CALLBACK RunChartsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
 					{
 						//set input values
 						for (size_t i = 0; i < rcd->inputObjects.size(); i++) {
-							rcd->inputObjects[i]->result = getWindowDouble(rcd->inputBoxes[i]);
-
+							if (rcd->inputObjects[i]->type == ChartObjectType::Input) {
+								static_cast<CInput*>(rcd->inputObjects[i])->input = getWindowString(rcd->inputBoxes[i]);
+							}
 						}
-						
+
 						//run all the calculations
 						gProject->chartProject->calculate();
-
-						//update input display incase they were self modified
-						for (size_t i = 0; i < rcd->inputObjects.size(); i++) {
-							SetWindowTextA(rcd->inputBoxes[i], trimmedDoubleToString(rcd->inputObjects[i]->result.value_or(0)).c_str());
-						}
 
 						rcd->chartResults->redraw();
 					}

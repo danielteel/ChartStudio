@@ -187,11 +187,12 @@ void InterpreterCPP::cleanUpExternList(vector<ExternalDef>& externals) {
 	}
 }
 
-optional<string> InterpreterCPP::checkCompile(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool hasThis) {
+optional<string> InterpreterCPP::checkCompile(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool isInput) {
 	vector<ExternalDef> externs = buildExternList(chartProject, thisChartObject);
 	
-	if (hasThis) {
-		externs.push_back(ExternalDef("this", IdentityType::Double, new NumberObj(0, false)));
+	if (isInput) {
+		externs.push_back(ExternalDef("input", IdentityType::String, new StringObj("", true)));
+		externs.push_back(ExternalDef("invalid", IdentityType::Bool, new BoolObj(false, false)));
 	}
 
 	try {
@@ -200,7 +201,7 @@ optional<string> InterpreterCPP::checkCompile(ChartProject* chartProject, CChart
 			tokenizer.tokenize(code);
 			Parser parser(tokenizer.tokens);
 			try {
-				parser.parse(externs, hasThis ? IdentityType::Bool : IdentityType::Double);
+				parser.parse(externs, IdentityType::Double);
 			} catch (char e) {
 				this->cleanUpExternList(externs);
 				return "Parser error: " + parser.errorMsg;
@@ -218,18 +219,16 @@ optional<string> InterpreterCPP::checkCompile(ChartProject* chartProject, CChart
 	return nullopt;
 }
 
-optional<double> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut) {
-	vector<ExternalDef> externs = buildExternList(chartProject, thisChartObject);
-
+void InterpreterCPP::runCode(ChartProject* chartProject, CScript& thisChartObject, bool* errorOccured, string* errorOut) {
+	vector<ExternalDef> externs = buildExternList(chartProject, &thisChartObject);
 
 	try {
 		Tokenizer tokenizer;
-		optional<double> returnValue = nullopt;
 
 		if (errorOccured) *errorOccured = false;
 
 		try {
-			tokenizer.tokenize(code);
+			tokenizer.tokenize(thisChartObject.code);
 			Parser parser(tokenizer.tokens);
 			try {
 				parser.parse(externs, IdentityType::Double);
@@ -239,12 +238,17 @@ optional<double> InterpreterCPP::runCode(ChartProject* chartProject, CChartObjec
 
 				if (retObj) {
 					if (retObj->objType == OpObjType::Number) {
-						returnValue = static_cast<NumberObj*>(retObj)->value;
+						thisChartObject.result = static_cast<NumberObj*>(retObj)->value;
+					} else {
+						thisChartObject.result = nullopt;
 					}
 					delete retObj;
+				} else {
+					thisChartObject.result = nullopt;
 				}
 
 			} catch (char e) {
+				thisChartObject.result = nullopt;
 				if (e == 'P') {
 					if (errorOccured) *errorOccured = true;
 					if (errorOut) *errorOut = "Parser error: " + parser.errorMsg;
@@ -257,53 +261,59 @@ optional<double> InterpreterCPP::runCode(ChartProject* chartProject, CChartObjec
 				}
 			}
 		} catch (char e) {
+			thisChartObject.result = nullopt;
 			if (errorOccured) *errorOccured = true;
 			if (errorOut) "Tokenizer error: " + tokenizer.errorMsg;
 		}
-		this->cleanUpExternList(externs);
-		return returnValue;
 	} catch (...) {
+		thisChartObject.result = nullopt;
 		if (errorOccured) *errorOccured = true;
 		if (errorOut) *errorOut = "Unknown catch all error";
 	}
 	this->cleanUpExternList(externs);
-	return nullopt;
 }
 
 
-optional<bool> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject* thisChartObject, string code, bool* errorOccured, string* errorOut, optional<double> thisValue) {
-	vector<ExternalDef> externs = buildExternList(chartProject, thisChartObject);
+void InterpreterCPP::runCode(ChartProject* chartProject, CInput& thisChartObject, bool* errorOccured, string* errorOut) {
+	vector<ExternalDef> externs = buildExternList(chartProject, &thisChartObject);
 
-	NumberObj* thisObj = nullptr;
+	externs.push_back(ExternalDef("input", IdentityType::String, new StringObj(thisChartObject.input, true)));
 
-	if (thisValue) {
-		thisObj = new NumberObj(thisValue, true);
-		externs.push_back(ExternalDef("this", IdentityType::Double, thisObj));
-	}
+	BoolObj* isInvalidObj = new BoolObj(false, false);
+	externs.push_back(ExternalDef("invalid", IdentityType::Bool, isInvalidObj));
 
 	try {
 		Tokenizer tokenizer;
-		optional<bool> returnValue = nullopt;
 
 		if (errorOccured) *errorOccured = false;
 
 		try {
-			tokenizer.tokenize(code);
+			tokenizer.tokenize(thisChartObject.code);
 			Parser parser(tokenizer.tokens);
 			try {
-				parser.parse(externs, IdentityType::Bool);
+				parser.parse(externs, IdentityType::Double);
 
 				currentProject = chartProject;
 				OpObj* retObj = parser.program.execute(externs);
 
+				thisChartObject.invalid = isInvalidObj->value==nullopt ? false : *isInvalidObj->value;
+
 				if (retObj) {
-					if (retObj->objType == OpObjType::Bool) {
-						returnValue = static_cast<BoolObj*>(retObj)->value;
+					if (retObj->objType == OpObjType::Number) {
+						thisChartObject.result = static_cast<NumberObj*>(retObj)->value;
+					} else {
+						thisChartObject.invalid = true;
+						thisChartObject.result = nullopt;
 					}
 					delete retObj;
+				} else {
+					thisChartObject.invalid = true;
+					thisChartObject.result = nullopt;
 				}
 
 			} catch (char e) {
+				thisChartObject.invalid = true;
+				thisChartObject.result = nullopt;
 				if (e == 'P') {
 					if (errorOccured) *errorOccured = true;
 					if (errorOut) *errorOut = "Parser error: " + parser.errorMsg;
@@ -316,15 +326,16 @@ optional<bool> InterpreterCPP::runCode(ChartProject* chartProject, CChartObject*
 				}
 			}
 		} catch (char e) {
+			thisChartObject.invalid = true;
+			thisChartObject.result = nullopt;
 			if (errorOccured) *errorOccured = true;
 			if (errorOut) "Tokenizer error: " + tokenizer.errorMsg;
 		}
-		this->cleanUpExternList(externs);
-		return returnValue;
 	} catch (...) {
+		thisChartObject.invalid = true;
+		thisChartObject.result = nullopt;
 		if (errorOccured) *errorOccured = true;
 		if (errorOut) *errorOut = "Unknown catch all error";
 	}
 	this->cleanUpExternList(externs);
-	return nullopt;
 }
