@@ -251,6 +251,8 @@ void ProjectContainer::fileNew() {
 	}
 
 	setChartProject(new ChartProject());
+	SetWindowText(this->ui->hwnd, "ChartStudio");
+
 }
 void ProjectContainer::fileOpen() {
 	char szFile[MAX_PATH];
@@ -263,6 +265,10 @@ void ProjectContainer::fileOpen() {
 		return;
 	}
 	setChartProject(new ChartProject(szFile));
+
+	string title = "ChartStudio ";
+	title += szFile;
+	SetWindowText(this->ui->hwnd, title.c_str());
 }
 
 void ProjectContainer::fileSave() {
@@ -285,6 +291,9 @@ void ProjectContainer::fileSaveAs() {
 			}
 			chartProject->saveAs(file);
 
+			string title = "ChartStudio ";
+			title += file;
+			SetWindowText(this->ui->hwnd, title.c_str());
 		}
 	}
 }
@@ -1543,7 +1552,7 @@ void ProjectContainer::beforePaintCharts() {
 		drawChartCanvas();
 		chartsNeedDrawn = false;
 	}
-}
+}	
 
 
 void ProjectContainer::whatChartIsAt(TPoint mouseXY, CChartBase*& thisChart) {
