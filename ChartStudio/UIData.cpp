@@ -16,15 +16,12 @@ void UIData::clearUI() {
 	chartCanvas->db->clear(RGB(230, 220, 220));
 	chartCanvas->db->flip();
 
-	uiCanvas->db->clear(RGB(230, 220, 220));
-	uiCanvas->db->flip();
 
 	constantsList->clearContents();
 	inputsList->clearContents();
 	imagesList->clearContents();
 	objectsList->clearContents();
 
-	uiList->clearContents();
 
 	linesList->clearContents();
 	tableList->clearContents();

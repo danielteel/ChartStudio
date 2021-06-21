@@ -189,6 +189,7 @@ public:
 	void needsUIUpdate();
 	void updateMenus();
 	void updateListUIs();
+	void updateStatus();
 	void updateUI();
 	TLine* clipboardLine = nullptr;
 

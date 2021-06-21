@@ -649,7 +649,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 
 			ui->mainTab = new TabControl(hWnd, 0, 0, 0, 0, nullptr);
 			ui->chartTabIndex = ui->mainTab->addTab("Charts");
-			ui->uiTabIndex = ui->mainTab->addTab("UI");
 
 				ui->chartCanvas = new Canvas(ui->mainTab->getHWnd(), 0, 0, 0, 0);
 				ui->mainTab->addChildToTab(ui->chartCanvas->hwnd, ui->chartTabIndex);
@@ -732,20 +731,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 				ui->imagesList->buttonBar->addButton(IDB_DELETE, ID_IMAGE_DELETE, "Delete image");
 				ui->imagesList->addColumn(1.0f, "Name");
 
-				ui->uiList = new ListUI("UI Objects", ui->mainTab->getHWnd(), 0, 0, 0, 0, nullptr, nullptr, nullptr, nullptr);
-				ui->mainTab->addChildToTab(ui->uiList->getHwnd(), ui->uiTabIndex);
-
-				ui->uiCanvas = new Canvas(ui->mainTab->getHWnd(), 0, 0, 0, 0);
-				ui->mainTab->addChildToTab(ui->uiCanvas->hwnd, ui->uiTabIndex);
-				ui->uiCanvas->leftDown = uiLeftDown;
-				ui->uiCanvas->leftMove = uiLeftMove;
-				ui->uiCanvas->leftUp = uiLeftUp;
-				ui->uiCanvas->rightDown = uiRightDown;
-				ui->uiCanvas->rightMove = uiRightMove;
-				ui->uiCanvas->rightUp = uiRightUp;
-				ui->uiCanvas->mouseMove = uiMouseMove;
-				ui->uiCanvas->mouseWheel = uiMouseWheel;
-
 
 			gProject = new ProjectContainer(ui);
 
@@ -756,9 +741,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 	case WM_KEYUP:
 		if (gProject) {
 			if (gProject->ui) {
-				if (gProject->ui->mainTab->currentTab() == gProject->ui->uiTabIndex) {
-					gProject->uiKeyDown(wParam);
-				} else if (gProject->ui->mainTab->currentTab() == gProject->ui->chartTabIndex) {
+				if (gProject->ui->mainTab->currentTab() == gProject->ui->chartTabIndex) {
 					gProject->chartKeyDown(wParam);
 				}
 			}
@@ -768,9 +751,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 	case WM_CHAR:
 		if (gProject){
 			if (gProject->ui) {
-				if (gProject->ui->mainTab->currentTab() == gProject->ui->uiTabIndex) {
-					gProject->uiCharPress(wParam);
-				} else if (gProject->ui->mainTab->currentTab() == gProject->ui->chartTabIndex) {
+				if (gProject->ui->mainTab->currentTab() == gProject->ui->chartTabIndex) {
 					gProject->chartCharPress(wParam);
 				}
 			}
@@ -834,9 +815,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 					ui->inputsList->move(chartsTabRect.left, chartsTabRect.top, chartsTabW, chartsTabH / 2);
 					ui->constantsList->move(chartsTabRect.left, chartsTabRect.top + chartsTabH / 2, chartsTabW, chartsTabH / 2);
 					ui->imagesList->move(chartsTabRect.left, chartsTabRect.top, chartsTabW, chartsTabH);
-
-					ui->uiCanvas->move(mainTabRect.left, mainTabRect.top, mainTabW - rightPanelW, mainTabH);
-					ui->uiList->move(mainTabRect.right - rightPanelW, mainTabRect.top, rightPanelW, mainTabH);
 				}
 			}
 
@@ -1148,9 +1126,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 				delete gProject->ui->constantsList;
 				delete gProject->ui->imagesList;
 				delete gProject->ui->inputsList;
-				delete gProject->ui->uiList;
 				delete gProject->ui->objectsList;
-				delete gProject->ui->uiCanvas;
 				delete gProject->ui->chartsTab;
 				delete gProject->ui->mainTab;
 

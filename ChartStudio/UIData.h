@@ -13,7 +13,6 @@ public:
 
 	void clearUI();
 
-	int uiTabIndex;
 	int chartTabIndex;
 
 	int objectsTab;
@@ -29,8 +28,6 @@ public:
 	HWND statusbar;
 
 	TabControl* mainTab;
-	Canvas* uiCanvas;
-	ListUI* uiList;
 	TabControl* chartsTab;
 	Canvas* chartCanvas;
 	ListUI* objectsList;

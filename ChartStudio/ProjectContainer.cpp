@@ -31,7 +31,6 @@ ProjectContainer::ProjectContainer(UIData* ui) {
 	this->ui = ui;
 	this->ui->clearUI();
 	this->chartDB = this->ui->chartCanvas->db;
-	this->uiDB = this->ui->uiCanvas->db;
 
 
 	this->crossHairCursor = LoadCursorA(NULL, IDC_CROSS);
@@ -1142,7 +1141,7 @@ void ProjectContainer::chartMouseWheel(POINT xy, int amount) {
 	double zoomStep = 0.1*amount;
 
 	double newZoom = oldZoom + zoomStep;
-	newZoom = fmin(fmax(0.025f, newZoom), 20.0f);
+	newZoom = fmin(fmax(0.05f, newZoom), 20.0f);
 
 	chartProject->viewState.zoom = newZoom;
 
@@ -1722,9 +1721,39 @@ void ProjectContainer::updateListUIs() {
 	ui->imagesList->buttonBar->enableButton(ID_IMAGE_DELETE, ui->imagesList->getCurSelItemData());
 }
 
+void ProjectContainer::updateStatus() {
+	char buffer[32];
+	snprintf(buffer, sizeof(buffer) - 1, "\t\t%g%%          ", chartProject->viewState.zoom*100);
+	SendMessage(ui->statusbar, SB_SETTEXT, 3, reinterpret_cast<LPARAM>(buffer));
+
+
+	POINT cursorPos;
+	GetCursorPos(&cursorPos);
+	ScreenToClient(ui->chartCanvas->hwnd, &cursorPos);
+	TPoint mouseXY = screenToChart(cursorPos);
+
+	snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+	SendMessage(ui->statusbar, SB_SETTEXT, 1, reinterpret_cast<LPARAM>(buffer));
+
+	if (this->selectedObject) {
+		CChartBase* chartBase = this->selectedObject->toChartBase();
+		if (chartBase) {
+			chartBase->screenToChart(&mouseXY);
+			snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+			SendMessage(ui->statusbar, SB_SETTEXT, 2, reinterpret_cast<LPARAM>(buffer));
+		} else {
+			snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+			SendMessage(ui->statusbar, SB_SETTEXT, 2, reinterpret_cast<LPARAM>(""));
+		}
+	} else {
+		SendMessage(ui->statusbar, SB_SETTEXT, 2, reinterpret_cast<LPARAM>(""));
+	}
+}
+
 void ProjectContainer::updateUI() {
 	if (!ui || !chartProject) return;
 
+	updateStatus();
 	updateMenus(); 
 	updateListUIs();
 }
