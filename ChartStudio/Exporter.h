@@ -18,6 +18,7 @@ public:
 	std::string getJSName(CChartObject * object, bool withThis);
 	void setUniqueIDs(ChartProject * chartProject);
 	bool exportToJS(ChartProject* chartProject, std::string toFile);
+	bool exportToJSON(ChartProject * chartProject, std::string toFile);
 	~Exporter();
 };
 
