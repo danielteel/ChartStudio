@@ -73,19 +73,19 @@ bool NullObj::notEqualTo(OpObj* obj) {
 
 
 bool NullObj::greaterThan(OpObj * obj) {
-	throw "attempted greaterThan comparison on null object";
+	return false;
 }
 
 bool NullObj::greaterOrEqualsThan(OpObj * obj) {
-	throw "attempted greaterOrEqualsThan comparison on null object";
+	return this->equalTo(obj);
 }
 
 bool NullObj::smallerThan(OpObj * obj) {
-	throw "attempted lessThan comparison on null object";
+	return false;
 }
 
 bool NullObj::smallerOrEqualsThan(OpObj * obj) {
-	throw "attempted lessOrEqualsThan comparison on null object";
+	return this->equalTo(obj);
 }
 
 
@@ -163,12 +163,20 @@ bool NumberObj::notEqualTo(OpObj* obj) {
 bool NumberObj::greaterThan(OpObj* obj) {
 	if (!obj) throw "tried to compare object to null pointer";
 
+
 	NumberObj* numObj = nullptr;
-	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
-		numObj = &static_cast<RegisterObj*>(obj)->numObj;
+	if (obj->objType == OpObjType::Register) {
+		if (obj->valueType == OpObjType::Number) {
+			numObj = &static_cast<RegisterObj*>(obj)->numObj;
+		} else if (obj->valueType == OpObjType::Null) {
+			return false;
+		}
 	}
 	if (obj->objType == OpObjType::Number) {
 		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (obj->objType == OpObjType::Null) {
+		return false;
 	}
 	if (numObj) {
 		if (this->value == nullopt || numObj->value == nullopt) {
@@ -184,11 +192,34 @@ bool NumberObj::greaterOrEqualsThan(OpObj* obj) {
 }
 
 bool NumberObj::smallerThan(OpObj* obj) {
-	return !this->greaterOrEqualsThan(obj);
+	if (!obj) throw "tried to compare object to null pointer";
+
+
+	NumberObj* numObj = nullptr;
+	if (obj->objType == OpObjType::Register) {
+		if (obj->valueType == OpObjType::Number) {
+			numObj = &static_cast<RegisterObj*>(obj)->numObj;
+		} else if (obj->valueType == OpObjType::Null) {
+			return false;
+		}
+	}
+	if (obj->objType == OpObjType::Number) {
+		numObj = static_cast<NumberObj*>(obj);
+	}
+	if (obj->objType == OpObjType::Null) {
+		return false;
+	}
+	if (numObj) {
+		if (this->value == nullopt || numObj->value == nullopt) {
+			return false;
+		}
+		return *this->value < *numObj->value;
+	}
+	throw "tried to compare object to incompatible object";
 }
 
 bool NumberObj::smallerOrEqualsThan(OpObj* obj) {
-	return !this->greaterThan(obj);
+	return this->smallerThan(obj) || this->equalTo(obj);
 }
 
 StringObj::StringObj() : OpObj(OpObjType::String, OpObjType::String, false) {
