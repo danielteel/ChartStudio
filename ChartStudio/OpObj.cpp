@@ -172,7 +172,7 @@ bool NumberObj::greaterThan(OpObj* obj) {
 	}
 	if (numObj) {
 		if (this->value == nullopt || numObj->value == nullopt) {
-			throw "tried to do size comparison with null";
+			return false;
 		}
 		return *this->value > *numObj->value;
 	}

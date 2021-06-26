@@ -147,13 +147,28 @@ OpObj* alert(OpObj*(*popFn) ()) {
 	return new BoolObj(true, false);
 }
 
+OpObj* notice(OpObj*(*popFn) ()) {
+	StringObj* msgObj = static_cast<StringObj*>(popFn());
+	optional<string> msg = msgObj->value;
+	delete msgObj;
+
+	if (msg != nullopt) {
+		MessageBoxA(GetActiveWindow(), (*msg).c_str(), "Notice", 0);
+	} else {
+		MessageBoxA(GetActiveWindow(), "empty alert", "Alert", 0);
+	}
+
+	return new BoolObj(true, false);
+}
+
 vector<ExternalDef> InterpreterCPP::buildExternList(ChartProject* chartProject, CChartObject* thisChartObject) {
 	vector<ExternalDef> externs = {
 		ExternalDef("runLinear", IdentityType::Double, { IdentityType::String, IdentityType::Double, IdentityType::Double }, &linear),
 		ExternalDef("runClamp", IdentityType::Double, { IdentityType::String, IdentityType::Double, IdentityType::Double }, &clamp),
 		ExternalDef("runPoly", IdentityType::Double, { IdentityType::String, IdentityType::Double, IdentityType::Double }, &poly),
 		ExternalDef("runTrend", IdentityType::Double, { IdentityType::String, IdentityType::Double, IdentityType::Double, IdentityType::Double }, &trend),
-		ExternalDef("alert", IdentityType::Bool, {IdentityType::String}, &alert)
+		ExternalDef("alert", IdentityType::Bool, {IdentityType::String}, &alert),
+		ExternalDef("notice", IdentityType::Bool, {IdentityType::String}, &notice)
 	};
 
 	if (chartProject) {

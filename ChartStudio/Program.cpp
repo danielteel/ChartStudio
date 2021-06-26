@@ -314,7 +314,14 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							flag_e = !*static_cast<NumberObj*>(objToTest)->value;
 							break;
 						case OpObjType::String:
-							flag_e = !static_cast<StringObj*>(objToTest)->value->size();
+							{
+								auto strObj = static_cast<StringObj*>(objToTest);
+								if (strObj->value == nullopt) {
+									flag_e = true;
+								} else {
+									flag_e = (*strObj->value).length() == 0;
+								}
+							}
 							break;
 						default:
 							this->throwError("unknown test type");
@@ -394,12 +401,10 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non number value ceil");
 						}
 						NumberObj* num = static_cast<NumberObj*>(objs[0]->getCopy());
-						if (num->value == nullopt) {
-							delete num;
-							this->throwError("tried operating on null value");
+						if (num->value != nullopt) {
+							num->value = ceil(*num->value);
+							objs[0]->setTo(num);
 						}
-						num->value = ceil(*num->value);
-						objs[0]->setTo(num);
 						delete num;
 					}
 					break;
@@ -410,12 +415,10 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non number value floor");
 						}
 						NumberObj* num = static_cast<NumberObj*>(objs[0]->getCopy());
-						if (num->value == nullopt) {
-							delete num;
-							this->throwError("tried operating on null value");
+						if (num->value != nullopt) {
+							num->value = floor(*num->value);
+							objs[0]->setTo(num);
 						}
-						num->value = floor(*num->value);
-						objs[0]->setTo(num);
 						delete num;
 					}
 					break;
@@ -426,12 +429,10 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non number value abs");
 						}
 						NumberObj* num = static_cast<NumberObj*>(objs[0]->getCopy());
-						if (num->value == nullopt) {
-							delete num;
-							this->throwError("tried operating on null value");
+						if (num->value != nullopt) {
+							num->value = abs(*num->value);
+							objs[0]->setTo(num);
 						}
-						num->value = abs(*num->value);
-						objs[0]->setTo(num);
 						delete num;
 					}
 					break;
@@ -447,7 +448,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						if (a->value == nullopt || b->value == nullopt) {
 							delete a;
 							delete b;
-							this->throwError("tried operating on null value");
+							this->throwError("tried min on null value");
 						}
 						a->value = fmin(*a->value, *b->value);
 						objs[0]->setTo(a);
@@ -467,7 +468,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						if (a->value == nullopt || b->value == nullopt) {
 							delete a;
 							delete b;
-							this->throwError("tried operating on null value");
+							this->throwError("tried max on null value");
 						}
 						a->value = fmax(*a->value, *b->value);
 						objs[0]->setTo(a);
@@ -490,7 +491,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							delete a;
 							delete b;
 							delete v;
-							this->throwError("tried operating on null value");
+							this->throwError("tried clamp on null value");
 						}
 						v->value = fmin(fmax(*a->value, *v->value), *b->value);
 						objs[0]->setTo(v);
@@ -526,6 +527,9 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 										numObj.value = 0;
 									}
 								}
+								break;
+							case OpObjType::Null:
+								numObj.value = nullopt;
 								break;
 							default:
 								delete val;
@@ -563,6 +567,9 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 								}
 							}
 							break;
+						case OpObjType::Null:
+							boolObj.value = nullopt;
+							break;
 						default:
 							delete val;
 							this->throwError("invalid conversion type");
@@ -583,7 +590,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						switch (val->valueType) {
 						case OpObjType::Number:
 							if (static_cast<NumberObj*>(val)->value == nullopt) {
-								strObj.value = "null";
+								strObj.value = nullopt;
 							} else {
 								double num = *static_cast<NumberObj*>(val)->value;
 								if (digObj.value == nullopt) {
@@ -618,7 +625,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							break;
 						case OpObjType::Bool:
 							if (static_cast<BoolObj*>(val)->value == nullopt) {
-								strObj.value = "null";
+								strObj.value = nullopt;
 							} else {
 								if (*static_cast<BoolObj*>(val)->value) {
 									strObj.value = "true";
@@ -628,7 +635,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							}
 							break;
 						case OpObjType::Null:
-							strObj.value = "null";
+							strObj.value = nullopt;
 						default:
 							delete val;
 							delete digits;
@@ -647,12 +654,12 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						}
 						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
 						if (strObj->value == nullopt) {
-							delete strObj;
-							this->throwError("tried to get length of null string");
+							objs[0]->setTo(&this->nullObj);
+						} else {
+							NumberObj* numObj = new NumberObj((*strObj->value).length(), false);
+							objs[0]->setTo(numObj);
+							delete numObj;
 						}
-						NumberObj* numObj = new NumberObj((*strObj->value).length(), false);
-						objs[0]->setTo(numObj);
-						delete numObj;
 						delete strObj;
 					}
 					break;
@@ -664,12 +671,10 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non string value lcase");
 						}
 						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
-						if (strObj->value == nullopt) {
-							delete strObj;
-							this->throwError("tried to set null to lowercase");
+						if (strObj->value != nullopt) {
+							transform((*strObj->value).begin(), (*strObj->value).end(), (*strObj->value).begin(), [](unsigned char c) { return std::tolower(c); });
+							objs[0]->setTo(strObj);
 						}
-						transform((*strObj->value).begin(), (*strObj->value).end(), (*strObj->value).begin(), [](unsigned char c) { return std::tolower(c); });
-						objs[0]->setTo(strObj);
 						delete strObj;
 					}
 					break;
@@ -680,12 +685,10 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non string value ucase");
 						}
 						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
-						if (strObj->value == nullopt) {
-							delete strObj;
-							this->throwError("tried to set null to uppercase");
+						if (strObj->value != nullopt) {
+							transform((*strObj->value).begin(), (*strObj->value).end(), (*strObj->value).begin(), [](unsigned char c) { return std::toupper(c); });
+							objs[0]->setTo(strObj);
 						}
-						transform((*strObj->value).begin(), (*strObj->value).end(), (*strObj->value).begin(), [](unsigned char c) { return std::toupper(c); });
-						objs[0]->setTo(strObj);
 						delete strObj;
 					}
 					break;
@@ -693,20 +696,19 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 					{
 						objs[0] = this->linkedObject(&op.obj0, scopes, &freeObjs[0]);
 						objs[1] = this->linkedObject(&op.obj1, scopes, &freeObjs[1]);
-						if (objs[0]->valueType != OpObjType::String || objs[1]->valueType != OpObjType::String) {
+						if ((objs[0]->valueType != OpObjType::String && objs[0]->valueType != OpObjType::Null)  || (objs[1]->valueType != OpObjType::String && objs[1]->valueType != OpObjType::Null)) {
 							this->throwError("tried operating on non string value concat");
 						}
-						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
-						StringObj* str2Obj = static_cast<StringObj*>(objs[1]->getCopy());
-						if (strObj->value == nullopt || str2Obj->value==nullopt) {
-							delete strObj;
-							delete str2Obj;
-							this->throwError("tried to concat with null");
-						}
-						strObj->value = *strObj->value + *str2Obj->value;
-						objs[0]->setTo(strObj);
-						delete strObj;
-						delete str2Obj;
+						StringObj strObj;
+						StringObj str2Obj;
+						strObj.setTo(objs[0]);
+						str2Obj.setTo(objs[1]);
+						string a="null";
+						string b="null";
+						if (strObj.value != nullopt) a = *strObj.value;
+						if (str2Obj.value != nullopt) b = *str2Obj.value;
+						strObj.value = a + b;
+						objs[0]->setTo(&strObj);
 					}
 					break;
 				case OpCodeType::trim:
@@ -716,14 +718,12 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							this->throwError("tried operating on non string value trim");
 						}
 						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
-						if (strObj->value == nullopt) {
-							delete strObj;
-							this->throwError("tried to trim null");
+						if (strObj->value != nullopt) {
+							string str = *strObj->value;
+							trim(str);
+							strObj->value = str;
+							objs[0]->setTo(strObj);
 						}
-						string str = *strObj->value;
-						trim(str);
-						strObj->value = str;
-						objs[0]->setTo(strObj);
 						delete strObj;
 					}
 					break;
@@ -738,24 +738,30 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						StringObj* strObj = static_cast<StringObj*>(objs[0]->getCopy());
 						NumberObj* startObj = static_cast<NumberObj*>(objs[1]->getCopy());
 						NumberObj* lenObj = static_cast<NumberObj*>(objs[2]->getCopy());
-						if (strObj->value == nullopt && startObj->value == nullopt && lenObj->value == nullopt) {
-							delete strObj;
-							delete startObj;
-							delete lenObj;
-							this->throwError("tried to get substring with null param");
-						}
-						if (*startObj->value >= (*strObj->value).length()) {
-							StringObj *empty = new StringObj("", false);
-							objs[0]->setTo(empty);
-							delete empty;
+
+						if (strObj->value == nullopt || startObj->value == nullopt) {
+							objs[0]->setTo(&this->nullObj);
 						} else {
-							int start = *startObj->value;
-							int length = *lenObj->value;
-							if (start < 0) start = (*strObj->value).length() + start;
-							StringObj* substrObj = new StringObj((*strObj->value).substr(start, length), false);
-							objs[0]->setTo(substrObj);
-							delete substrObj;
+							if (lenObj->value == nullopt) {
+								StringObj* subStrObj = new StringObj((*strObj->value).substr(*startObj->value), false);
+								objs[0]->setTo(subStrObj);
+								delete subStrObj;
+							} else {
+								if (*startObj->value >= (*strObj->value).length()) {
+									StringObj *empty = new StringObj("", false);
+									objs[0]->setTo(empty);
+									delete empty;
+								} else {
+									int start = *startObj->value;
+									int length = *lenObj->value;
+									if (start < 0) start = (*strObj->value).length() + start;
+									StringObj* subStrObj = new StringObj((*strObj->value).substr(start, length), false);
+									objs[0]->setTo(subStrObj);
+									delete subStrObj;
+								}
+							}
 						}
+
 						delete strObj;
 						delete startObj;
 						delete lenObj;
