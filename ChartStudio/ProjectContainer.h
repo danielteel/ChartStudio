@@ -127,6 +127,7 @@ public:
 
 	void chartCharPress(int key);
 	void chartKeyDown(int key);
+	void chartKeyDownPriority(int key);
 	void chartLButtonDown(POINT xy);
 	void chartLButtonMove(POINT xy);
 	void chartLButtonUp(POINT xy);

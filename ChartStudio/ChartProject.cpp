@@ -646,6 +646,7 @@ template <class T> bool ChartProject::moveItemUp(vector<T*> *list, T* itemToMove
 					T* prevItem = (*list)[i - 1];
 					(*list)[i - 1] = (*list)[i];
 					(*list)[i] = prevItem;
+					validateInputs();
 					return true;
 				}
 			}
@@ -662,6 +663,7 @@ template <class T> bool ChartProject::moveItemDown(vector<T*> *list, T* itemToMo
 					T* nextItem = (*list)[i + 1];
 					(*list)[i + 1] = (*list)[i];
 					(*list)[i] = nextItem;
+					validateInputs();
 					return true;
 				}
 			}

@@ -891,6 +891,18 @@ void ProjectContainer::chartCharPress(int key) {
 	needsUIUpdate();
 }
 
+void ProjectContainer::chartKeyDownPriority(int key) {
+	switch (key) {
+	case VK_NEXT:
+		objectMoveDown();
+		break;
+
+	case VK_PRIOR:
+		objectMoveUp();
+		break;
+	}
+}
+
 void ProjectContainer::chartKeyDown(int key) {
 	switch (key) {
 	case VK_DELETE:
