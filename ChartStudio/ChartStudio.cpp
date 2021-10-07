@@ -56,6 +56,7 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow){
     UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
 	hInst = hInstance; // Store instance handle in our global variable
 
@@ -91,8 +92,8 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 	string fileToOpen = lpCmdLine;
 	if (fileToOpen.rfind(".chartproject") != string::npos) {
 		if (gProject) {
-			fileToOpen.front() = ' ';
-			fileToOpen.back() = ' ';
+			if (fileToOpen.front()=='"') fileToOpen.front() = ' ';
+			if (fileToOpen.back()=='"') fileToOpen.back() = ' ';
 			gProject->setChartProject(new ChartProject(fileToOpen));
 		}
 	}
