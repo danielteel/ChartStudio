@@ -364,7 +364,7 @@ bool ChartProject::saveToFile(string file) {
 	for (auto & image : this->chartImages) {
 		char* imgData = nullptr;
 		size_t imgDataLen = 0;
-		writeStringToFile(saveFile, image->toString(&imgData, &imgDataLen, 99));
+		writeStringToFile(saveFile, image->toString(&imgData, &imgDataLen, 90));
 		if (imgData) {
 			fwrite(imgData, imgDataLen, 1, saveFile);
 			delete[] imgData;
