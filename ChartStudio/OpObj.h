@@ -53,7 +53,7 @@ public:
 	bool smallerOrEqualsThan(OpObj * obj);
 };
 
-class StringObj :public OpObj {
+class StringObj : public OpObj {
 public:
 	StringObj();
 	StringObj(optional<string> initialValue, bool isConstant);

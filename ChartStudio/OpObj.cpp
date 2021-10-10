@@ -73,19 +73,19 @@ bool NullObj::notEqualTo(OpObj* obj) {
 
 
 bool NullObj::greaterThan(OpObj * obj) {
-	return false;
+	throw "attempted greaterThan comparison on null object";
 }
 
 bool NullObj::greaterOrEqualsThan(OpObj * obj) {
-	return this->equalTo(obj);
+	throw "attempted greaterOrEqualsThan comparison on null object";
 }
 
 bool NullObj::smallerThan(OpObj * obj) {
-	return false;
+	throw "attempted lessThan comparison on null object";
 }
 
 bool NullObj::smallerOrEqualsThan(OpObj * obj) {
-	return this->equalTo(obj);
+	throw "attempted lessOrEqualsThan comparison on null object";
 }
 
 
@@ -163,20 +163,12 @@ bool NumberObj::notEqualTo(OpObj* obj) {
 bool NumberObj::greaterThan(OpObj* obj) {
 	if (!obj) throw "tried to compare object to null pointer";
 
-
 	NumberObj* numObj = nullptr;
-	if (obj->objType == OpObjType::Register) {
-		if (obj->valueType == OpObjType::Number) {
-			numObj = &static_cast<RegisterObj*>(obj)->numObj;
-		} else if (obj->valueType == OpObjType::Null) {
-			return false;
-		}
+	if (obj->objType == OpObjType::Register && obj->valueType == OpObjType::Number) {
+		numObj = &static_cast<RegisterObj*>(obj)->numObj;
 	}
 	if (obj->objType == OpObjType::Number) {
 		numObj = static_cast<NumberObj*>(obj);
-	}
-	if (obj->objType == OpObjType::Null) {
-		return false;
 	}
 	if (numObj) {
 		if (this->value == nullopt || numObj->value == nullopt) {
@@ -190,6 +182,7 @@ bool NumberObj::greaterThan(OpObj* obj) {
 bool NumberObj::greaterOrEqualsThan(OpObj* obj) {
 	return this->greaterThan(obj) || this->equalTo(obj);
 }
+
 
 bool NumberObj::smallerThan(OpObj* obj) {
 	if (!obj) throw "tried to compare object to null pointer";

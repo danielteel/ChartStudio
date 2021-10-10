@@ -217,11 +217,11 @@ optional<string> InterpreterCPP::checkCompile(ChartProject* chartProject, CChart
 			Parser parser(tokenizer.tokens);
 			try {
 				parser.parse(externs, IdentityType::Double);
-			} catch (char e) {
+			} catch (char) {
 				this->cleanUpExternList(externs);
 				return "Parser error: " + parser.errorMsg;
 			}
-		} catch (char e) {
+		} catch (char) {
 			this->cleanUpExternList(externs);
 			return "Tokenizer error: " + tokenizer.errorMsg;
 		}
@@ -275,10 +275,10 @@ void InterpreterCPP::runCode(ChartProject* chartProject, CScript& thisChartObjec
 					if (errorOut) *errorOut = "Unknown error";
 				}
 			}
-		} catch (char e) {
+		} catch (char) {
 			thisChartObject.result = nullopt;
 			if (errorOccured) *errorOccured = true;
-			if (errorOut) "Tokenizer error: " + tokenizer.errorMsg;
+			if (errorOut) *errorOut = "Tokenizer error: " + tokenizer.errorMsg;
 		}
 	} catch (...) {
 		thisChartObject.result = nullopt;
@@ -340,11 +340,11 @@ void InterpreterCPP::runCode(ChartProject* chartProject, CInput& thisChartObject
 					if (errorOut) *errorOut = "Unknown error";
 				}
 			}
-		} catch (char e) {
+		} catch (char) {
 			thisChartObject.invalid = true;
 			thisChartObject.result = nullopt;
 			if (errorOccured) *errorOccured = true;
-			if (errorOut) "Tokenizer error: " + tokenizer.errorMsg;
+			if (errorOut) *errorOut = "Tokenizer error: " + tokenizer.errorMsg;
 		}
 	} catch (...) {
 		thisChartObject.invalid = true;

@@ -70,7 +70,7 @@ class TokenObj {
 public:
 	InterpreterTokenType type;
 	string sValue;
-	double dValue;
+	double dValue=0.0;
 	size_t line;
 
 	TokenObj(InterpreterTokenType type, string value, int line) {
@@ -94,10 +94,6 @@ public:
 		this->sValue = a.sValue;
 		this->dValue = a.dValue;
 		this->line = a.line;
-	}
-
-	TokenObj() {
-
 	}
 };
 

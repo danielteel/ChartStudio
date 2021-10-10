@@ -104,7 +104,8 @@ OpObj* Program::linkedObject(UnlinkedObj* obj, vector<vector<vector<OpObj*>>>& s
 					return &this->ecx;
 			}
 			this->throwError("unknown register");
-
+			return nullptr;
+		
 		case UnlinkedType::Variable:
 			return (scopes[obj->scope][scopes[obj->scope].size() - 1][obj->index]);
 
@@ -124,12 +125,14 @@ OpObj* Program::linkedObject(UnlinkedObj* obj, vector<vector<vector<OpObj*>>>& s
 				default:
 					this->throwError("unknown unlinked object literal type");
 			}
+			return nullptr;
 
 		case UnlinkedType::Null:
 			return &this->nullObj;
 
 		default:
 			this->throwError("unknown unlinked object type");
+			return nullptr;
 	}
 }
 
@@ -508,7 +511,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						switch (val->valueType) {
 							case OpObjType::String:
 								if (static_cast<StringObj*>(val)->value == nullopt) {
-									numObj.value == nullopt;
+									numObj.value = nullopt;
 								} else {
 									try {
 										numObj.value = stod(*static_cast<StringObj*>(val)->value);
@@ -547,7 +550,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 						switch (val->valueType) {
 						case OpObjType::String:
 							if (static_cast<StringObj*>(val)->value == nullopt) {
-								boolObj.value == nullopt;
+								boolObj.value = nullopt;
 							} else {
 								if ((*static_cast<StringObj*>(val)->value).length()){
 									boolObj.value = true;
@@ -598,7 +601,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 									snprintf(strBuff, 49, "%g", num);
 									strObj.value = strBuff;
 								} else {
-									int dig = *digObj.value;
+									int dig = int(*digObj.value);
 									if (dig >= 0) {
 										char strBuff[50];
 										snprintf(strBuff, 49, "%.*f", dig, num);
@@ -636,6 +639,8 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							break;
 						case OpObjType::Null:
 							strObj.value = nullopt;
+							break;
+
 						default:
 							delete val;
 							delete digits;
@@ -743,7 +748,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 							objs[0]->setTo(&this->nullObj);
 						} else {
 							if (lenObj->value == nullopt) {
-								StringObj* subStrObj = new StringObj((*strObj->value).substr(*startObj->value), false);
+								StringObj* subStrObj = new StringObj((*strObj->value).substr(size_t(*startObj->value)), false);
 								objs[0]->setTo(subStrObj);
 								delete subStrObj;
 							} else {
@@ -752,8 +757,8 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 									objs[0]->setTo(empty);
 									delete empty;
 								} else {
-									int start = *startObj->value;
-									int length = *lenObj->value;
+									int start = int(*startObj->value);
+									int length = int(*lenObj->value);
 									if (start < 0) start = (*strObj->value).length() + start;
 									StringObj* subStrObj = new StringObj((*strObj->value).substr(start, length), false);
 									objs[0]->setTo(subStrObj);
@@ -977,7 +982,7 @@ OpObj* Program::execute(vector<ExternalDef> externals) {
 			if (freeObjs[2] && objs[2]) { delete objs[2]; objs[2] = nullptr; freeObjs[2] = false; }
 			eip++;
 		}
-	} catch (char e) {
+	} catch (char) {
 		cleanUp(scopes, cleanUpStack, stack, objs, freeObjs);
 		throw 'E';
 	} catch (const char* e) {

@@ -46,8 +46,7 @@ class ScopeObj {
 			this->index = a.index;
 		}
 
-		ScopeObj() {
-		}
+
 };
 
 class Parser {
