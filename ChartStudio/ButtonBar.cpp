@@ -176,7 +176,7 @@ void ButtonBar::move(int x, int y, int w) {
 }
 
 void ButtonBar::addButton(HBITMAP bitmap, int buttonID, const char* toolTipText) {
-	DWORD style = BS_CENTER | BS_OWNERDRAW | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	DWORD style = BS_CENTER | WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	if (bitmap) {
 		style = style | BS_BITMAP;
 	}
