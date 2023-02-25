@@ -114,6 +114,7 @@ public:
 
 	void keyPressScratchPad(int key);
 	void scratchpadEnter();
+	void scratchpadInsert();
 	void scratchpadBackspace();
 
 	void lineAddPoints();
@@ -164,8 +165,7 @@ public:
 	bool isChartImageAt(ChartImage * image, TPoint xy);
 	void chartImagesLButtonDown(POINT xy);
 	void chartImagesLButtonMove(POINT xy);
-	void moveChartImageWithCharts(ChartImage * image, TPoint newPos, vector<CChartBase*> dontMoveThese);
-	void reorderImages(vector<CChartBase*> dontMoveThese);
+
 	void chartImagesLButtonUp(POINT xy);
 
 	const float dragChartImageTolerance = 5.0f;

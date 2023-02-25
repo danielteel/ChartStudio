@@ -52,6 +52,7 @@
 #define IDB_HIDE                        140
 #define ID_CONSTANT_DOWN                140
 #define IDB_LINEAR                      141
+#define IDB_LINEARREVERSE				217
 #define ID_CONSTANT_ADD                 141
 #define IDB_ADDLINEAR                   142
 #define ID_CONSTANT_DELETE              142
@@ -134,6 +135,7 @@
 #define ID_LINES_EDIT                   213
 #define ID_INPUT_EDIT                   214
 #define ID_CONSTANT_EDIT                215
+#define IDC_REVERSE_INTERPOLATE         216
 #define ID_OBJ_EDIT                     32772
 #define ID_OBJ_CENTERVIEW               32773
 #define ID_OBJ_COPYBOUNDS               32774
@@ -164,7 +166,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        157
+#define _APS_NEXT_RESOURCE_VALUE        158
 #define _APS_NEXT_COMMAND_VALUE         32795
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           216

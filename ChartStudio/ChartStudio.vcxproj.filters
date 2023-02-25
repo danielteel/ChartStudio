@@ -372,5 +372,8 @@
     <Image Include="Images\up.bmp">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Images\linear reverse.BMP">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

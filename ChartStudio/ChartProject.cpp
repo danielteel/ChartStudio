@@ -148,13 +148,19 @@ ChartProject::ChartProject(string file) {
 				CLinearChart* newLinear = new CLinearChart(name, exportResult, yIsInputAxis, bounds, input1, input2, {});
 				this->addChart(newLinear);
 
-				while (parser.isNotEOF() && parser.look != ')') {
+				while (parser.isNotEOF() && parser.look != ')' && parser.look!=',') {
 					TLine* newLine = parser.readInLine();
 					if (newLine) {
 						newLinear->addLine(newLine);
 					} else {
 						break;
 					}
+				}				
+				if (parser.look == ',') {
+					bool reverseInterpolate;
+					if (!parser.matchChar(',')) break;
+					if (!parser.getBool(reverseInterpolate)) break;
+					newLinear->reverseInterpolate = reverseInterpolate;
 				}
 				if (!parser.matchChar(')')) break;
 

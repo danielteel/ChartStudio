@@ -75,7 +75,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -190,6 +190,7 @@
     <Image Include="Images\down.bmp" />
     <Image Include="Images\export.bmp" />
     <Image Include="Images\hide.bmp" />
+    <Image Include="Images\linear reverse.BMP" />
     <Image Include="Images\linear.BMP" />
     <Image Include="Images\linear1.bmp" />
     <Image Include="Images\poly.bmp" />

@@ -35,6 +35,7 @@ ProjectContainer* gProject = nullptr;
 
 HBITMAP gExportBitmap = NULL;
 HBITMAP gLinearBitmap = NULL;
+HBITMAP gLinearReverseBitmap = NULL;
 HBITMAP gTrendBitmap = NULL;
 HBITMAP gClampBitmap = NULL;
 HBITMAP gPolyBitmap = NULL;
@@ -67,6 +68,7 @@ int APIENTRY WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
 
 	gLinearBitmap = (HBITMAP)LoadImageA(hInst, MAKEINTRESOURCE(IDB_LINEAR), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
+	gLinearReverseBitmap = (HBITMAP)LoadImageA(hInst, MAKEINTRESOURCE(IDB_LINEARREVERSE), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
 	gTrendBitmap = (HBITMAP)LoadImageA(hInst, MAKEINTRESOURCE(IDB_TREND), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
 	gClampBitmap = (HBITMAP)LoadImageA(hInst, MAKEINTRESOURCE(IDB_CLAMP), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
 	gPolyBitmap = (HBITMAP)LoadImageA(hInst, MAKEINTRESOURCE(IDB_POLY), IMAGE_BITMAP, 0, 0, LR_DEFAULTCOLOR);
@@ -311,7 +313,11 @@ void drawChartsBox(DRAWITEMSTRUCT* pdis, int column) {
 
 				HBITMAP bitmapToDraw = NULL;
 				if (linearChart) {
-					bitmapToDraw = gLinearBitmap;
+					if (linearChart->reverseInterpolate) {
+						bitmapToDraw = gLinearReverseBitmap;
+					}else {
+						bitmapToDraw = gLinearBitmap;
+					}
 				} else if (trendChart) {
 					bitmapToDraw = gTrendBitmap;
 				} else if (clampChart) {
@@ -795,7 +801,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 				UIData* ui = gProject->ui;
 
 				if (ui) {
-					int rightPanelW = 250;
+					int rightPanelW = 275;
 
 					SendMessage(ui->statusbar, WM_SIZE, 0, 0);
 					GetClientRect(ui->statusbar, &sbarRect);

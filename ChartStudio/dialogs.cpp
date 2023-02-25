@@ -134,6 +134,8 @@ INT_PTR CALLBACK ChartSettingsDlgProc(HWND hDlg, UINT message, WPARAM wParam, LP
 			}
 			SetDlgItemTextA(hDlg, IDC_ERRORTEXT, whyIsBad.c_str());
 
+			EnableWindow(GetDlgItem(hDlg, IDC_REVERSE_INTERPOLATE), false);
+
 			if (tableObject) {
 				EnableWindow(GetDlgItem(hDlg, IDC_INPUTAXISISX), false);
 				EnableWindow(GetDlgItem(hDlg, IDC_INPUTAXISISY), false);
@@ -174,6 +176,12 @@ INT_PTR CALLBACK ChartSettingsDlgProc(HWND hDlg, UINT message, WPARAM wParam, LP
 					SendDlgItemMessageA(hDlg, IDC_INPUT1LIST, CB_SELECTSTRING, -1, (LPARAM)linearChart->inputVariable1);
 					SendDlgItemMessageA(hDlg, IDC_INPUT2LIST, CB_SELECTSTRING, -1, (LPARAM)linearChart->inputVariable2);
 					EnableWindow(GetDlgItem(hDlg, IDC_INPUT3LIST), false);
+					EnableWindow(GetDlgItem(hDlg, IDC_REVERSE_INTERPOLATE), true);
+					if (linearChart->reverseInterpolate) {
+						SendDlgItemMessageA(hDlg, IDC_REVERSE_INTERPOLATE, BM_SETCHECK, BST_CHECKED, 0);
+					}else {
+						SendDlgItemMessageA(hDlg, IDC_REVERSE_INTERPOLATE, BM_SETCHECK, BST_UNCHECKED, 0);
+					}
 				} else if (clampChart) {
 					SendDlgItemMessageA(hDlg, IDC_INPUT1TEXT, WM_SETTEXT, 0, (LPARAM)"X/Y");
 					SendDlgItemMessageA(hDlg, IDC_INPUT2TEXT, WM_SETTEXT, 0, (LPARAM)"Value");
@@ -252,11 +260,7 @@ INT_PTR CALLBACK ChartSettingsDlgProc(HWND hDlg, UINT message, WPARAM wParam, LP
 						break;
 					}
 
-					if (SendDlgItemMessageA(hDlg, IDC_EXPORTRESULT, BM_GETCHECK, BST_CHECKED, 0) == BST_CHECKED) {
-						gChartObjectToEdit->exportResult = true;
-					} else {
-						gChartObjectToEdit->exportResult = false;
-					}
+					gChartObjectToEdit->exportResult = isChecked(hDlg, IDC_EXPORTRESULT);
 
 					CTable* tableObj = gChartObjectToEdit->toTable();
 					if (tableObj) {
@@ -266,6 +270,7 @@ INT_PTR CALLBACK ChartSettingsDlgProc(HWND hDlg, UINT message, WPARAM wParam, LP
 					CChartBase* chartBase = gChartObjectToEdit->toChartBase();
 					if (chartBase) {
 						CTrendChart* trendChart = chartBase->toTrendChart();
+						CLinearChart* linearChart = chartBase->toLinearChart();
 						if (trendChart) {
 							trendChart->inputVariable1 = getSelectedInput(hDlg, IDC_INPUT1LIST);
 							trendChart->entryPointInput = getSelectedInput(hDlg, IDC_INPUT2LIST);
@@ -273,6 +278,9 @@ INT_PTR CALLBACK ChartSettingsDlgProc(HWND hDlg, UINT message, WPARAM wParam, LP
 						} else {
 							chartBase->inputVariable1 = getSelectedInput(hDlg, IDC_INPUT1LIST);
 							chartBase->inputVariable2 = getSelectedInput(hDlg, IDC_INPUT2LIST);
+						}
+						if (linearChart) {
+							linearChart->reverseInterpolate = isChecked(hDlg, IDC_REVERSE_INTERPOLATE);
 						}
 
 						chartBase->yIsInputAxis = isChecked(hDlg, IDC_INPUTAXISISY);

@@ -40,18 +40,18 @@ bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment seg2, bool n
 	return getSegmentIntersection(returnPoint, *this, seg2, needsToBeTouching);
 }
 
-bool TSegment::figureYCrossing(double& returnValue, TSegment seg1, double xAxis) {
+bool TSegment::figureYCrossing(double& returnValue, TSegment seg1, double xAxis, bool needsToBeTouching) {
 	TSegment seg2(TPoint(xAxis, -100), TPoint(xAxis, 100));
 	TPoint intersection;
-	if (getSegmentIntersection(intersection, seg1, seg2, false)) {
+	if (getSegmentIntersection(intersection, seg1, seg2, needsToBeTouching)) {
 		returnValue = intersection.y;
 		return true;
 	}
 	return false;
 }
 
-bool TSegment::figureYCrossing(double& returnValue, double xAxis) {
-	return figureYCrossing(returnValue, *this, xAxis);
+bool TSegment::figureYCrossing(double& returnValue, double xAxis, bool needsToBeTouching) {
+	return figureYCrossing(returnValue, *this, xAxis, needsToBeTouching);
 }
 
 TSegment TSegment::getOppositeSegmentAt(TPoint atPoint) {

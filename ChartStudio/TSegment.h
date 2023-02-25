@@ -9,8 +9,8 @@ public:
 	bool getSegmentIntersection(TPoint& returnPoint,TSegment seg1, TSegment seg2, bool needsToBeTouching);
 	bool getSegmentIntersection(TPoint& returnPoint, TSegment seg2, bool needsToBeTouching);
 
-	bool figureYCrossing(double& returnValue, TSegment seg1, double xAxis);
-	bool figureYCrossing(double& returnValue, double xAxis);
+	bool figureYCrossing(double& returnValue, TSegment seg1, double xAxis, bool needsToBeTouching=false);
+	bool figureYCrossing(double& returnValue, double xAxis, bool needsToBeTouching = false);
 
 	TSegment getOppositeSegmentAt(TPoint atPoint);
 

@@ -763,6 +763,7 @@ void ProjectContainer::keyPressScratchPad(int key) {
 
 void ProjectContainer::scratchpadEnter() {
 	//apply scratchpad number to whatever is selected
+	if (scratchpadInUse == false) return;
 	CChartBase* selChart = selectedObject ? selectedObject->toChartBase() : nullptr;
 	if (selChart) {
 		if (!scratchpad.empty()) {
@@ -791,6 +792,24 @@ void ProjectContainer::scratchpadEnter() {
 					scratchpadInUse = false;
 				}
 				break;
+			}
+		}
+	}
+	needsRedraw();
+	needsUIUpdate();
+}
+
+void ProjectContainer::scratchpadInsert() {
+	if (scratchpadInUse == false) return;
+	CLinearChart* selLinearChart = selectedObject ? selectedObject->toLinearChart() : nullptr;
+	if (selLinearChart) {
+		if (!scratchpad.empty()) {
+			double value = strtod(scratchpad.c_str(), nullptr);
+			TLine* createdLine = nullptr;
+			if (selLinearChart->autoGenerateLine(value, &createdLine)) {
+				scratchpadInUse = false;
+				setSelectedLine(createdLine);
+				updateLinesList();
 			}
 		}
 	}
@@ -942,6 +961,9 @@ void ProjectContainer::chartKeyDown(int key) {
 
 	case VK_RETURN:
 		scratchpadEnter();
+		break;
+	case VK_INSERT:
+		scratchpadInsert();
 		break;
 	}
 	needsRedraw();
@@ -1744,17 +1766,17 @@ void ProjectContainer::updateStatus() {
 	ScreenToClient(ui->chartCanvas->hwnd, &cursorPos);
 	TPoint mouseXY = screenToChart(cursorPos);
 
-	snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+	snprintf(buffer, sizeof(buffer) - 1, "%.1f, %.1f", mouseXY.x, mouseXY.y);
 	SendMessage(ui->statusbar, SB_SETTEXT, 1, reinterpret_cast<LPARAM>(buffer));
 
 	if (this->selectedObject) {
 		CChartBase* chartBase = this->selectedObject->toChartBase();
 		if (chartBase) {
 			chartBase->screenToChart(&mouseXY);
-			snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+			snprintf(buffer, sizeof(buffer) - 1, "%.1f, %.1f", mouseXY.x, mouseXY.y);
 			SendMessage(ui->statusbar, SB_SETTEXT, 2, reinterpret_cast<LPARAM>(buffer));
 		} else {
-			snprintf(buffer, sizeof(buffer) - 1, "%.0f, %.0f", mouseXY.x, mouseXY.y);
+			snprintf(buffer, sizeof(buffer) - 1, "%.1f, %.1f", mouseXY.x, mouseXY.y);
 			SendMessage(ui->statusbar, SB_SETTEXT, 2, reinterpret_cast<LPARAM>(""));
 		}
 	} else {
