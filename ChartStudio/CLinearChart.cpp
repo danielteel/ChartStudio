@@ -229,16 +229,11 @@ optional<double> CLinearChart::reverseInterpolateChart(optional<double> xOrYInpu
 		}
 	}
 
-	if (aboveLine->isLinear(false) == false || belowLine->isLinear(false) == false) {
-		this->deleteCalcLines();
-		return nullopt;//One or both lines can potentially have more then one intersection
-	}
 
 	TLine* finalLine = nullptr;
 	if (aboveLine == belowLine) {
 		finalLine = aboveLine->copyLine();
-	}
-	else {
+	}else {
 		finalLine = new TLine();
 
 		for (auto& point : belowLine->points) {
@@ -285,6 +280,11 @@ optional<double> CLinearChart::reverseInterpolateChart(optional<double> xOrYInpu
 		
 	}
 
+	if (!finalLine->isLinear(false)) {
+		this->deleteCalcLines();
+		delete finalLine;
+		return nullopt;
+	}
 
 	TSegment finalSegment;
 	if (finalLine->findSegment(finalSegment, xOrY)) {

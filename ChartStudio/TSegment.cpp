@@ -13,7 +13,10 @@ TSegment::TSegment(TPoint point1, TPoint point2) {
 TSegment::~TSegment() {
 }
 
-bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment seg1, TSegment seg2, bool needsToBeTouching) {
+
+TSegment figureYIntersectSegment(TPoint(0, -1000), TPoint(0, 1000));
+
+bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment& seg1, TSegment& seg2, bool needsToBeTouching) {
 	TPoint xy(0.0f, 0.0f);
 	double t = (seg2.point2.y - seg2.point1.y)*(seg1.point2.x - seg1.point1.x) - (seg2.point2.x - seg2.point1.x)*(seg1.point2.y - seg1.point1.y);
 	if (!compare_float(t, 0.0f)) {
@@ -24,10 +27,14 @@ bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment seg1, TSegme
 		if (needsToBeTouching) {
 			TRect rect1(seg1.point1, seg1.point2);
 			TRect rect2(seg2.point1, seg2.point2);
-			if (rect1.isPointInside(xy) && rect2.isPointInside(xy)) {
-				returnPoint = xy;
-				return true;
+			if (&seg1 != &figureYIntersectSegment) {
+				if (!rect1.isPointInside(xy)) return false;
 			}
+			if (&seg2 != &figureYIntersectSegment) {
+				if (!rect2.isPointInside(xy)) return false;
+			}
+			returnPoint = xy;
+			return true;
 		} else {
 			returnPoint = xy;
 			return true;
@@ -36,14 +43,15 @@ bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment seg1, TSegme
 	return false;
 }
 
-bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment seg2, bool needsToBeTouching) {
+bool TSegment::getSegmentIntersection(TPoint& returnPoint, TSegment& seg2, bool needsToBeTouching) {
 	return getSegmentIntersection(returnPoint, *this, seg2, needsToBeTouching);
 }
 
 bool TSegment::figureYCrossing(double& returnValue, TSegment seg1, double xAxis, bool needsToBeTouching) {
-	TSegment seg2(TPoint(xAxis, -100), TPoint(xAxis, 100));
 	TPoint intersection;
-	if (getSegmentIntersection(intersection, seg1, seg2, needsToBeTouching)) {
+	figureYIntersectSegment.point1.x = xAxis;
+	figureYIntersectSegment.point2.x = xAxis;
+	if (getSegmentIntersection(intersection, seg1, figureYIntersectSegment, needsToBeTouching)) {
 		returnValue = intersection.y;
 		return true;
 	}
